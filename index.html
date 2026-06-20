@@ -2,889 +2,540 @@
 
 <html lang="ru" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MB Dashboard">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#FAF9F5">
-  <link rel="manifest" href="./manifest.json">
-  <link rel="apple-touch-icon" href="./icons/icon-180.png">
-  <title>Massivburg · Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
-  <style>
-    /* ══════════════════════════════════════════
-       SURF DESIGN SYSTEM — CSS VARS
-    ══════════════════════════════════════════ */
-    :root {
-      --bg:       #FAF9F5;
-      --surface:  #FFFFFF;
-      --t1:       #1C1C1E;
-      --t2:       #8A8985;
-      --t3:       #C4C3BE;
-      --accent:   #1A7AE6;
-      --accent-bg: rgba(26,122,230,.06);
-      --success:  #2EBD52;
-      --danger:   #E8453A;
-      --warn:     #E89A0A;
-      --brd:      rgba(40,35,20,.06);
-      --brd-vis:  rgba(40,35,20,.10);
-      --shadow:   0 1px 4px rgba(30,25,10,.04);
-      --shadow-md:0 4px 16px rgba(30,25,10,.08);
-      --safe-top: env(safe-area-inset-top);
-      --safe-bot: env(safe-area-inset-bottom);
-      --font-ui: 'DM Sans', -apple-system, sans-serif;
-      --font-hd: 'Playfair Display', Georgia, serif;
-    }
-    html[data-theme="dark"] {
-      --bg:       #1A1A1D;
-      --surface:  #2C2C2E;
-      --t1:       #F0EFEA;
-      --t2:       #9A9A9A;
-      --t3:       #5A5A5A;
-      --accent:   #4A9FF5;
-      --accent-bg: rgba(74,159,245,.08);
-      --brd:      rgba(255,255,255,.06);
-      --brd-vis:  rgba(255,255,255,.12);
-      --shadow:   0 1px 4px rgba(0,0,0,.2);
-      --shadow-md:0 4px 16px rgba(0,0,0,.3);
-    }
-
-```
-/* ══════════════════════════════════════════
-   RESET + BASE
-══════════════════════════════════════════ */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0; padding: 0;
-  -webkit-tap-highlight-color: transparent;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#FAF9F5">
+<link rel="manifest" href="./manifest.json">
+<title>Massivburg · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+<style>
+/* ── VARS ── */
+:root {
+  --bg:#FAF9F5; --surf:#FFFFFF; --t1:#1C1C1E; --t2:#8A8985; --t3:#C4C3BE;
+  --acc:#1A7AE6; --acc-bg:rgba(26,122,230,.06);
+  --ok:#2EBD52; --err:#E8453A; --warn:#E89A0A;
+  --brd:rgba(40,35,20,.07); --brd2:rgba(40,35,20,.12);
+  --sh:0 1px 4px rgba(30,25,10,.05);
+  --sh-md:0 4px 16px rgba(30,25,10,.09);
+  --ui:'DM Sans',-apple-system,sans-serif;
+  --hd:'Playfair Display',Georgia,serif;
+  --st:env(safe-area-inset-top);
+  --sb:env(safe-area-inset-bottom);
 }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  font-family: var(--font-ui);
-  background: var(--bg);
-  color: var(--t1);
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding-top: var(--safe-top);
-  padding-bottom: calc(56px + var(--safe-bot));
-  -webkit-overflow-scrolling: touch;
-  overflow-x: hidden;
-  transition: background .3s, color .3s;
-}
-button { font-family: var(--font-ui); cursor: pointer; border: none; background: none; }
-input  { font-family: var(--font-ui); }
-::-webkit-scrollbar { display: none; }
--webkit-user-select: none;
-* { -webkit-user-select: none; user-select: none; }
-input, textarea { -webkit-user-select: text; user-select: text; }
-
-/* ══════════════════════════════════════════
-   HEADER
-══════════════════════════════════════════ */
-.header {
-  position: sticky; top: 0; z-index: 200;
-  background: rgba(250,249,245,.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--brd-vis);
-  padding: 10px 20px 0;
-}
-html[data-theme="dark"] .header { background: rgba(26,26,29,.92); }
-.header-top {
-  display: flex; align-items: center; justify-content: space-between;
-  padding-bottom: 8px;
-}
-.header-logo {
-  font-family: var(--font-hd);
-  font-size: 20px; font-weight: 500;
-  letter-spacing: -.5px; color: var(--t1);
-}
-.header-logo span { color: var(--accent); }
-.header-actions { display: flex; gap: 4px; }
-.icon-btn {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--t2);
-  transition: background 100ms cubic-bezier(.22,1,.36,1), color 100ms;
-}
-.icon-btn:active { background: var(--brd); transform: scale(.92); }
-.icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-/* Tabs row */
-.tabs-wrap {
-  overflow-x: auto; overflow-y: hidden;
-  scrollbar-width: none;
-  display: flex; gap: 4px;
-  padding: 0 0 10px;
-}
-.tab-btn {
-  flex-shrink: 0;
-  display: flex; align-items: center; gap: 5px;
-  padding: 5px 11px;
-  border-radius: 6px;
-  font-size: 13px; font-weight: 500;
-  color: var(--t2);
-  background: transparent;
-  transition: background 150ms cubic-bezier(.22,1,.36,1), color 150ms;
-  white-space: nowrap;
-}
-.tab-btn.active {
-  background: var(--surface);
-  color: var(--t1);
-  box-shadow: var(--shadow);
-}
-.tab-count {
-  font-size: 10px; font-weight: 600;
-  background: var(--brd-vis);
-  color: var(--t2);
-  border-radius: 100px;
-  padding: 1px 6px;
-  letter-spacing: .3px;
-}
-.tab-btn.active .tab-count {
-  background: var(--accent-bg);
-  color: var(--accent);
+html[data-theme=dark] {
+  --bg:#1A1A1D; --surf:#2C2C2E; --t1:#F0EFEA; --t2:#9A9A9A; --t3:#5A5A5A;
+  --acc:#4A9FF5; --acc-bg:rgba(74,159,245,.08);
+  --brd:rgba(255,255,255,.07); --brd2:rgba(255,255,255,.13);
+  --sh:0 1px 4px rgba(0,0,0,.25); --sh-md:0 4px 16px rgba(0,0,0,.35);
 }
 
-/* ══════════════════════════════════════════
-   MAIN CONTENT
-══════════════════════════════════════════ */
-.screen { display: none; }
-.screen.active { display: block; }
+/* ── RESET ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(–ui);background:var(–bg);color:var(–t1);min-height:100dvh;
+padding-bottom:calc(56px + var(–sb));overflow-x:hidden;-webkit-overflow-scrolling:touch;
+transition:background .3s,color .3s}
+button{font-family:var(–ui);cursor:pointer;border:none;background:none;color:inherit}
+input{font-family:var(–ui)}
+*{-webkit-user-select:none;user-select:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+::-webkit-scrollbar{display:none}
 
-.content { padding: 12px 16px 8px; }
+/* ── SETUP SCREEN ── */
+#setup{
+position:fixed;inset:0;z-index:9999;
+background:var(–bg);
+display:flex;flex-direction:column;align-items:center;justify-content:center;
+padding:32px 24px;text-align:center;
+}
+#setup.gone{display:none}
+.setup-logo{font-family:var(–hd);font-size:30px;font-weight:500;letter-spacing:-.5px;margin-bottom:6px}
+.setup-logo span{color:var(–acc)}
+.setup-sub{font-size:13px;color:var(–t2);margin-bottom:36px;line-height:1.5}
+.setup-box{width:100%;max-width:340px}
 
-/* Section header */
-.section-hd {
-  font-family: var(--font-hd);
-  font-size: 22px; font-weight: 500;
-  letter-spacing: -.3px;
-  color: var(--t1);
-  padding: 16px 0 8px 2px;
-}
-.section-meta {
-  font-size: 11px; font-weight: 400;
-  color: var(--t2);
-  margin-top: 2px;
-  letter-spacing: .2px;
-}
+/* ── FORM ── */
+.f-label{display:block;font-size:10px;font-weight:600;color:var(–t2);
+text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.f-input{width:100%;background:var(–surf);border:1.5px solid var(–brd2);
+border-radius:8px;padding:12px 14px;font-size:14px;color:var(–t1);outline:none;
+transition:border-color 150ms}
+.f-input:focus{border-color:var(–acc)}
+.f-hint{font-size:11px;color:var(–t2);margin-top:5px;line-height:1.4}
+.f-block{margin-bottom:16px}
+.btn{width:100%;border-radius:8px;padding:13px;font-size:15px;font-weight:600;
+transition:opacity 150ms,transform 100ms cubic-bezier(.22,1,.36,1)}
+.btn:active{opacity:.88;transform:scale(.98)}
+.btn-primary{background:var(–acc);color:#fff}
+.btn-ghost{background:transparent;color:var(–err);border:1.5px solid var(–err);margin-top:8px}
 
-/* Task card */
-.task-card {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 11px 14px;
-  margin-bottom: 5px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--brd);
-  position: relative;
-  overflow: hidden;
-  transition: box-shadow 120ms cubic-bezier(.22,1,.36,1);
+/* ── HEADER ── */
+.header{
+position:sticky;top:0;z-index:200;
+background:rgba(250,249,245,.93);
+backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+border-bottom:1px solid var(–brd2);
+padding:10px 20px 0;
 }
-.task-card:active { box-shadow: none; }
-.priority-bar {
-  position: absolute; left: 0; top: 0; bottom: 0;
-  width: 3px;
-}
-.task-inner { padding-left: 8px; }
-.task-name {
-  font-size: 15px; font-weight: 500;
-  color: var(--t1);
-  line-height: 1.35;
-  letter-spacing: -.1px;
-  margin-bottom: 7px;
-}
-.task-meta {
-  display: flex; flex-wrap: wrap;
-  align-items: center; gap: 6px;
-}
-.task-status {
-  font-size: 10px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .5px;
-  padding: 2px 7px;
-  border-radius: 100px;
-  display: flex; align-items: center; gap: 4px;
-}
-.status-dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  flex-shrink: 0;
-}
-.task-assignee {
-  font-size: 11px; font-weight: 500;
-  color: var(--t2);
-  display: flex; align-items: center; gap: 3px;
-}
-.task-assignee.unassigned { color: var(--danger); }
-.task-deadline {
-  font-size: 11px; font-weight: 500;
-  color: var(--t2);
-  margin-left: auto;
-}
-.task-deadline.overdue { color: var(--danger); }
-.task-actions { margin-top: 8px; display: flex; justify-content: flex-end; }
-.copy-btn {
-  font-size: 11px; font-weight: 600;
-  color: var(--accent);
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: var(--accent-bg);
-  letter-spacing: .3px;
-  transition: background 100ms, transform 100ms cubic-bezier(.34,1.56,.64,1);
-}
-.copy-btn:active { transform: scale(.92); }
+html[data-theme=dark] .header{background:rgba(26,26,29,.93)}
+.header-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px}
+.logo{font-family:var(–hd);font-size:20px;font-weight:500;letter-spacing:-.5px}
+.logo span{color:var(–acc)}
+.hdr-btns{display:flex;gap:2px}
+.icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;
+justify-content:center;color:var(–t2);transition:background 100ms,transform 100ms}
+.icon-btn:active{background:var(–brd);transform:scale(.9)}
+.icon-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;
+stroke-linecap:round;stroke-linejoin:round}
 
-/* Unassigned group */
-.unassigned-hd {
-  font-size: 11px; font-weight: 600;
-  color: var(--warn);
-  text-transform: uppercase; letter-spacing: .5px;
-  padding: 10px 2px 5px;
-  display: flex; align-items: center; gap: 5px;
-}
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;overflow-x:auto;overflow-y:hidden;
+scrollbar-width:none;padding-bottom:10px}
+.tab{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:5px 11px;
+border-radius:6px;font-size:13px;font-weight:500;color:var(–t2);
+background:transparent;white-space:nowrap;
+transition:background 150ms,color 150ms}
+.tab.on{background:var(–surf);color:var(–t1);box-shadow:var(–sh)}
+.tab-cnt{font-size:10px;font-weight:600;background:var(–brd2);color:var(–t2);
+border-radius:100px;padding:1px 6px;letter-spacing:.3px;transition:background 150ms,color 150ms}
+.tab.on .tab-cnt{background:var(–acc-bg);color:var(–acc)}
 
-/* Assignee group header */
-.group-hd {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 2px 5px;
-  border-bottom: 1px solid var(--brd-vis);
-  margin-bottom: 6px;
-}
-.group-hd-name {
-  font-family: var(--font-hd);
-  font-size: 15px; font-weight: 500;
-  color: var(--t1); letter-spacing: -.1px;
-}
-.group-hd-cnt {
-  font-size: 10px; font-weight: 600;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border-radius: 100px;
-  padding: 2px 8px;
-  letter-spacing: .3px;
-}
+/* ── SCREENS ── */
+.screen{display:none;padding:12px 16px 8px}
+.screen.on{display:block}
 
-/* ══════════════════════════════════════════
-   EMPTY / LOADING / ERROR
-══════════════════════════════════════════ */
-.state-box {
-  text-align: center;
-  padding: 56px 20px;
-}
-.state-icon {
-  font-size: 40px; margin-bottom: 14px;
-  display: block;
-}
-.state-title {
-  font-family: var(--font-hd);
-  font-size: 18px; font-weight: 500;
-  color: var(--t1); margin-bottom: 6px;
-}
-.state-text {
-  font-size: 14px; color: var(--t2);
-  line-height: 1.5;
-}
-.state-error { color: var(--danger); }
+/* ── STATES ── */
+.state{text-align:center;padding:56px 20px}
+.state-icon{font-size:38px;display:block;margin-bottom:12px}
+.state-title{font-family:var(–hd);font-size:18px;font-weight:500;margin-bottom:6px}
+.state-text{font-size:13px;color:var(–t2);line-height:1.5}
+.state-err{color:var(–err)}
+.spin-wrap{display:flex;align-items:center;justify-content:center;gap:10px;
+padding:56px 20px;font-size:13px;font-weight:500;color:var(–t2)}
+.spinner{width:18px;height:18px;border:2px solid var(–brd2);border-top-color:var(–acc);
+border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* Spinner */
-.spinner-wrap {
-  display: flex; align-items: center; justify-content: center;
-  padding: 56px 20px; gap: 10px;
-  color: var(--t2);
-  font-size: 13px; font-weight: 500;
-}
-.spinner {
-  width: 18px; height: 18px;
-  border: 2px solid var(--brd-vis);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  flex-shrink: 0;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+/* ── TASK CARD ── */
+.card{background:var(–surf);border-radius:12px;padding:11px 14px 11px 20px;
+margin-bottom:5px;box-shadow:var(–sh);border:1px solid var(–brd);
+position:relative;overflow:hidden;transition:box-shadow 120ms}
+.card:active{box-shadow:none}
+.pbar{position:absolute;left:0;top:0;bottom:0;width:3px}
+.card-name{font-size:15px;font-weight:500;color:var(–t1);line-height:1.35;
+letter-spacing:-.1px;margin-bottom:7px}
+.card-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.status-pill{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
+padding:2px 7px;border-radius:100px;display:flex;align-items:center;gap:4px}
+.status-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.assignee{font-size:11px;font-weight:500;color:var(–t2)}
+.assignee.none{color:var(–err)}
+.deadline{font-size:11px;font-weight:500;color:var(–t2);margin-left:auto}
+.deadline.over{color:var(–err)}
+.card-foot{margin-top:8px;display:flex;justify-content:flex-end}
+.copy-btn{font-size:11px;font-weight:600;color:var(–acc);padding:4px 10px;
+border-radius:6px;background:var(–acc-bg);letter-spacing:.3px;
+transition:background 100ms,transform 100ms cubic-bezier(.34,1.56,.64,1)}
+.copy-btn:active{transform:scale(.92)}
 
-/* ══════════════════════════════════════════
-   SETTINGS SCREEN
-══════════════════════════════════════════ */
-.settings-screen {
-  padding: 24px 16px 20px;
-  max-width: 480px; margin: 0 auto;
-}
-.settings-hd {
-  font-family: var(--font-hd);
-  font-size: 22px; font-weight: 500;
-  letter-spacing: -.3px;
-  margin-bottom: 4px;
-}
-.settings-sub {
-  font-size: 13px; color: var(--t2);
-  margin-bottom: 24px;
-  line-height: 1.4;
-}
-.form-block { margin-bottom: 20px; }
-.form-label {
-  display: block;
-  font-size: 10px; font-weight: 600;
-  color: var(--t2);
-  text-transform: uppercase; letter-spacing: .5px;
-  margin-bottom: 6px;
-}
-.form-input {
-  width: 100%;
-  background: var(--surface);
-  border: 1.5px solid var(--brd-vis);
-  border-radius: 8px;
-  padding: 11px 14px;
-  font-size: 14px;
-  color: var(--t1);
-  outline: none;
-  transition: border-color 150ms;
-}
-.form-input:focus { border-color: var(--accent); }
-.form-hint {
-  font-size: 11px; color: var(--t2);
-  margin-top: 5px; line-height: 1.4;
-}
-.btn-primary {
-  width: 100%;
-  background: var(--accent);
-  color: #fff;
-  border-radius: 8px;
-  padding: 13px;
-  font-size: 15px; font-weight: 600;
-  transition: opacity 150ms, transform 100ms cubic-bezier(.22,1,.36,1);
-}
-.btn-primary:active { opacity: .88; transform: scale(.98); }
-.btn-danger-outline {
-  width: 100%;
-  background: transparent;
-  color: var(--danger);
-  border: 1.5px solid var(--danger);
-  border-radius: 8px;
-  padding: 11px;
-  font-size: 14px; font-weight: 500;
-  margin-top: 8px;
-  transition: opacity 150ms;
-}
-.btn-danger-outline:active { opacity: .7; }
+/* ── GROUP HEADERS ── */
+.grp-unassigned{font-size:11px;font-weight:600;color:var(–warn);
+text-transform:uppercase;letter-spacing:.5px;
+padding:10px 2px 6px;display:flex;align-items:center;gap:5px}
+.grp-assignee{display:flex;align-items:center;justify-content:space-between;
+padding:14px 2px 6px;border-bottom:1px solid var(–brd2);margin-bottom:6px}
+.grp-assignee-name{font-family:var(–hd);font-size:15px;font-weight:500;color:var(–t1)}
+.grp-cnt{font-size:10px;font-weight:600;color:var(–acc);background:var(–acc-bg);
+border-radius:100px;padding:2px 8px}
+.grp-gap{height:8px}
 
-/* Divider */
-.divider {
-  height: 1px; background: var(--brd-vis);
-  margin: 24px 0;
-}
+/* ── AI PANEL ── */
+.ai-panel{margin:16px 0 4px;padding-top:14px;border-top:1px solid var(–brd2)}
+.ai-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+padding:11px 16px;background:var(–surf);border:1.5px solid var(–brd2);
+border-radius:10px;font-size:13px;font-weight:600;color:var(–acc);
+transition:background 120ms,transform 100ms cubic-bezier(.22,1,.36,1)}
+.ai-btn:active{transform:scale(.98);background:var(–acc-bg)}
+.ai-btn.loading{color:var(–t3);border-color:var(–brd);pointer-events:none}
+.ai-preview{margin-top:8px;display:flex;align-items:center;gap:8px;
+background:var(–acc-bg);border:1px solid rgba(26,122,230,.12);
+border-radius:8px;padding:9px 12px;cursor:pointer}
+.ai-preview:active{opacity:.8}
+.ai-prev-dot{width:5px;height:5px;border-radius:50%;background:var(–acc);flex-shrink:0}
+.ai-prev-text{font-size:11px;color:var(–t2);flex:1;line-height:1.4;
+overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ai-prev-arr{font-size:13px;color:var(–t3)}
+.spin-sm{display:inline-block;width:13px;height:13px;
+border:2px solid rgba(26,122,230,.2);border-top-color:var(–acc);
+border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle}
 
-/* About block in settings */
-.about-block {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 14px 16px;
-  border: 1px solid var(--brd);
-}
-.about-row {
-  display: flex; justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  font-size: 13px;
-}
-.about-row:not(:last-child) { border-bottom: 1px solid var(--brd); }
-.about-key { color: var(--t2); }
-.about-val { font-weight: 500; }
+/* ── REVEAL MODAL ── */
+#reveal{position:fixed;inset:0;z-index:800;
+display:flex;flex-direction:column;
+pointer-events:none;opacity:0;transition:opacity .35s}
+#reveal.on{opacity:1;pointer-events:all}
+.reveal-bg{position:absolute;inset:0;background:rgba(20,18,10,.5);
+backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.reveal-card{position:relative;margin:auto 12px;max-height:88vh;overflow-y:auto;
+background:var(–surf);border-radius:20px;padding:26px 22px 22px;
+box-shadow:0 24px 80px rgba(10,8,4,.3);
+display:flex;flex-direction:column;gap:14px;
+transform:scale(.93) translateY(18px);
+transition:transform .4s cubic-bezier(.22,1,.36,1)}
+#reveal.on .reveal-card{transform:scale(1) translateY(0)}
+.reveal-badge{display:inline-flex;align-items:center;gap:6px;align-self:flex-start}
+.reveal-dot{width:7px;height:7px;border-radius:50%;background:var(–acc)}
+.reveal-lbl{font-size:11px;font-weight:600;letter-spacing:.5px;
+text-transform:uppercase;color:var(–acc)}
+.reveal-body{font-size:13px;line-height:1.75;color:var(–t1)}
+.reveal-body strong{font-weight:600;color:var(–t1)}
+.reveal-meta{font-size:11px;color:var(–t2);padding-top:10px;border-top:1px solid var(–brd)}
+.reveal-actions{display:flex;gap:8px}
+.reveal-copy{flex:1;background:var(–acc);color:#fff;border-radius:8px;
+padding:11px;font-size:14px;font-weight:600;
+transition:opacity 150ms,transform 100ms cubic-bezier(.22,1,.36,1)}
+.reveal-copy:active{opacity:.85;transform:scale(.97)}
+.reveal-close{background:var(–brd2);color:var(–t2);border-radius:8px;
+padding:11px 16px;font-size:14px;font-weight:500}
+.reveal-hint{font-size:11px;color:var(–t3);text-align:center}
 
-/* ══════════════════════════════════════════
-   BOTTOM NAV
-══════════════════════════════════════════ */
-.bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  z-index: 300;
-  background: rgba(250,249,245,.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(40,35,20,.08);
-  display: flex;
-  padding: 8px 20px calc(8px + var(--safe-bot));
-  gap: 4px;
-  justify-content: flex-end;
-  align-items: center;
-}
-html[data-theme="dark"] .bottom-nav { background: rgba(26,26,29,.95); }
-.nav-info {
-  flex: 1;
-  font-size: 11px; color: var(--t2);
-  font-weight: 500;
-}
-.nav-time { color: var(--t1); font-weight: 600; }
+/* ── EXPORT MODAL ── */
+#export-modal{position:fixed;inset:0;z-index:700;
+display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+pointer-events:none;opacity:0;transition:opacity .3s}
+#export-modal.on{opacity:1;pointer-events:all}
+.export-bg{position:absolute;inset:0;background:rgba(20,18,10,.2);
+backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.export-sheet{position:relative;background:var(–surf);
+border-radius:16px 16px 0 0;width:100%;max-height:88vh;
+display:flex;flex-direction:column;padding-bottom:var(–sb)}
+.export-head{display:flex;align-items:center;justify-content:space-between;
+padding:16px 20px 10px}
+.export-title{font-family:var(–hd);font-size:18px;font-weight:500}
+.export-tabs{display:flex;gap:4px;padding:0 16px 12px;overflow-x:auto;
+scrollbar-width:none;flex-shrink:0}
+.etab{flex-shrink:0;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:500;
+color:var(–t2);background:var(–brd);transition:background 120ms,color 120ms}
+.etab.on{background:var(–acc);color:#fff}
+.export-preview{flex:1;overflow-y:auto;padding:0 16px;-webkit-overflow-scrolling:touch}
+.export-text{font-family:monospace;font-size:12px;line-height:1.75;color:var(–t1);
+white-space:pre-wrap;word-break:break-word;background:var(–bg);
+border-radius:8px;padding:12px 14px;min-height:100px}
+.export-foot{padding:12px 16px 16px;display:flex;gap:8px}
 
-/* ══════════════════════════════════════════
-   AI REVEAL (from Рефлекция pattern)
-══════════════════════════════════════════ */
-.reveal-wrap {
-  position: fixed; inset: 0; z-index: 900;
-  display: flex; flex-direction: column;
-  pointer-events: none; opacity: 0;
-  transition: opacity .4s;
-}
-.reveal-wrap.on  { opacity: 1; pointer-events: all; }
-.reveal-wrap.out { opacity: 0; transition: opacity .3s; }
-.reveal-bg {
-  position: absolute; inset: 0;
-  background: rgba(20,18,10,.5);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-.reveal-card {
-  position: relative;
-  margin: auto 12px;
-  max-height: 88vh; overflow-y: auto;
-  background: var(--surface);
-  border-radius: 20px;
-  padding: 28px 22px 24px;
-  box-shadow: 0 24px 80px rgba(10,8,4,.25);
-  transform: scale(.92) translateY(20px);
-  transition: transform .45s cubic-bezier(.22,1,.36,1);
-  display: flex; flex-direction: column; gap: 14px;
-}
-.reveal-wrap.on  .reveal-card { transform: scale(1) translateY(0); }
-.reveal-wrap.out .reveal-card { transform: scale(.95) translateY(10px); transition: transform .3s; }
+/* ── SETTINGS SCREEN ── */
+#screen-settings{padding:24px 16px 20px;max-width:480px}
+.settings-title{font-family:var(–hd);font-size:22px;font-weight:500;
+letter-spacing:-.3px;margin-bottom:4px}
+.settings-sub{font-size:13px;color:var(–t2);margin-bottom:24px;line-height:1.4}
+.divider{height:1px;background:var(–brd2);margin:20px 0}
+.about-box{background:var(–surf);border-radius:12px;padding:14px 16px;border:1px solid var(–brd)}
+.about-row{display:flex;justify-content:space-between;align-items:center;
+padding:6px 0;font-size:13px}
+.about-row:not(:last-child){border-bottom:1px solid var(–brd)}
+.about-k{color:var(–t2)}
+.about-v{font-weight:500}
 
-.reveal-badge {
-  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
-}
-.reveal-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
-.reveal-lbl { font-size: 11px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); }
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:300;
+background:rgba(250,249,245,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+border-top:1px solid rgba(40,35,20,.08);
+display:flex;align-items:center;padding:8px 20px calc(8px + var(–sb));gap:4px}
+html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
+.nav-info{flex:1;font-size:11px;color:var(–t2);font-weight:500}
+.nav-time{color:var(–t1);font-weight:600}
 
-.reveal-text {
-  font-family: var(--font-hd);
-  font-size: 16px; line-height: 1.65;
-  color: var(--t1); letter-spacing: -.1px;
-}
-.reveal-meta {
-  font-size: 11px; color: var(--t2); line-height: 1.5;
-  padding-top: 10px; border-top: 1px solid var(--brd);
-}
-.reveal-hint { font-size: 11px; color: var(--t3); text-align: center; opacity: .7; }
-.reveal-actions { display: flex; gap: 8px; }
-.reveal-copy-btn {
-  flex: 1; background: var(--accent); color: #fff;
-  border-radius: 8px; padding: 11px;
-  font-size: 14px; font-weight: 600; font-family: var(--font-ui);
-  transition: opacity 150ms, transform 100ms cubic-bezier(.22,1,.36,1);
-}
-.reveal-copy-btn:active { opacity: .85; transform: scale(.97); }
-.reveal-close-btn {
-  background: var(--brd); color: var(--t2);
-  border-radius: 8px; padding: 11px 16px;
-  font-size: 14px; font-weight: 500; font-family: var(--font-ui);
-  transition: background 120ms;
-}
+/* ── TOAST ── */
+#toast{position:fixed;bottom:calc(64px + var(–sb));left:50%;
+transform:translateX(-50%) translateY(16px);
+background:var(–t1);color:var(–bg);padding:9px 18px;border-radius:100px;
+font-size:12px;font-weight:500;white-space:nowrap;z-index:9999;
+opacity:0;pointer-events:none;
+box-shadow:0 8px 20px rgba(30,25,10,.15);
+transition:opacity .2s cubic-bezier(.22,1,.36,1),transform .2s cubic-bezier(.22,1,.36,1)}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{background:var(–ok)}
+#toast.err{background:var(–err)}
 
-/* AI panel at bottom of each tab */
-.ai-panel { margin: 14px 0 4px; padding-top: 12px; border-top: 1px solid var(--brd-vis); }
-.ai-trigger-btn {
-  width: 100%;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 11px 16px;
-  background: var(--surface); border: 1.5px solid var(--brd-vis);
-  border-radius: 10px;
-  font-size: 13px; font-weight: 600; color: var(--accent);
-  font-family: var(--font-ui);
-  transition: background 120ms, transform 100ms cubic-bezier(.22,1,.36,1);
-}
-.ai-trigger-btn:active { transform: scale(.98); background: var(--accent-bg); }
-.ai-trigger-btn.loading { color: var(--t3); border-color: var(--brd); pointer-events: none; }
-.ai-cached-row {
-  margin-top: 8px;
-  display: flex; align-items: center; gap: 8px;
-  background: var(--accent-bg);
-  border: 1px solid rgba(26,122,230,.12);
-  border-radius: 8px; padding: 8px 12px;
-  cursor: pointer;
-}
-.ai-cached-row:active { opacity: .8; }
-.ai-cached-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-.ai-cached-preview {
-  font-size: 11px; color: var(--t2); flex: 1; line-height: 1.4;
-  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
-}
-.ai-cached-arr { font-size: 13px; color: var(--t3); }
+/* ── LOAD BAR ── */
+#loadbar{position:fixed;top:0;left:0;right:0;z-index:999;
+height:2px;background:var(–acc);transform-origin:left;
+transform:scaleX(0);opacity:0;transition:opacity .2s}
+#loadbar.on{opacity:1;animation:lb 1.5s ease-in-out infinite}
+@keyframes lb{0%{transform:scaleX(0)}60%{transform:scaleX(.8)}100%{transform:scaleX(1);opacity:0}}
 
-@keyframes spin-anim { to { transform: rotate(360deg); } }
-.spin-icon {
-  display: inline-block; width: 13px; height: 13px;
-  border: 2px solid rgba(26,122,230,.2); border-top-color: var(--accent);
-  border-radius: 50%; animation: spin-anim .65s linear infinite; vertical-align: middle;
-}
+/* ── OFFLINE BANNER ── */
+#offline-banner{display:none;position:fixed;top:0;left:0;right:0;z-index:500;
+background:var(–warn);color:#fff;font-size:11px;font-weight:600;
+text-align:center;padding:6px 16px;letter-spacing:.3px}
+#offline-banner.on{display:block}
+</style>
 
-/* ══════════════════════════════════════════
-   EXPORT TAB BUTTONS
-══════════════════════════════════════════ */
-.exp-tab-btn {
-  flex-shrink: 0;
-  padding: 5px 12px;
-  border-radius: 6px;
-  font-size: 12px; font-weight: 500;
-  color: var(--t2);
-  background: var(--brd);
-  border: none; cursor: pointer;
-  font-family: var(--font-ui);
-  transition: background 120ms, color 120ms;
-}
-.exp-tab-btn.active {
-  background: var(--accent);
-  color: #fff;
-}
-
-/* ══════════════════════════════════════════
-   TOAST
-══════════════════════════════════════════ */
-.toast {
-  position: fixed;
-  bottom: calc(64px + var(--safe-bot));
-  left: 50%; transform: translateX(-50%) translateY(20px);
-  background: var(--t1); color: var(--bg);
-  padding: 9px 18px;
-  border-radius: 100px;
-  font-size: 12px; font-weight: 500;
-  white-space: nowrap;
-  z-index: 999;
-  opacity: 0;
-  pointer-events: none;
-  box-shadow: 0 8px 20px rgba(30,25,10,.12);
-  transition: opacity 200ms cubic-bezier(.22,1,.36,1),
-              transform 200ms cubic-bezier(.22,1,.36,1);
-}
-.toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-.toast.success { background: var(--success); }
-.toast.error   { background: var(--danger); }
-
-/* ══════════════════════════════════════════
-   TOKEN SETUP OVERLAY (first run)
-══════════════════════════════════════════ */
-.setup-overlay {
-  position: fixed; inset: 0; z-index: 9000;
-  background: var(--bg);
-  display: none; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 32px 24px;
-  text-align: center;
-}
-.setup-overlay.visible { display: flex; }
-.setup-logo {
-  font-family: var(--font-hd);
-  font-size: 28px; font-weight: 500;
-  color: var(--t1); margin-bottom: 6px;
-}
-.setup-logo span { color: var(--accent); }
-.setup-tagline {
-  font-size: 13px; color: var(--t2);
-  margin-bottom: 36px; line-height: 1.5;
-}
-.setup-form { width: 100%; max-width: 360px; }
-.setup-form .form-input {
-  font-family: monospace;
-  font-size: 13px;
-  letter-spacing: .5px;
-}
-
-/* ══════════════════════════════════════════
-   REFRESH INDICATOR (top bar pulse)
-══════════════════════════════════════════ */
-.loading-bar {
-  position: fixed; top: var(--safe-top); left: 0; right: 0; z-index: 500;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent) 0%, rgba(26,122,230,.2) 100%);
-  transform-origin: left;
-  transform: scaleX(0);
-  transition: transform .4s cubic-bezier(.22,1,.36,1), opacity .2s;
-  opacity: 0;
-}
-.loading-bar.active {
-  opacity: 1;
-  animation: loadbar 1.4s cubic-bezier(.22,1,.36,1) infinite;
-}
-@keyframes loadbar {
-  0%  { transform: scaleX(0); opacity: 1; }
-  60% { transform: scaleX(.85); opacity: 1; }
-  100%{ transform: scaleX(1);  opacity: 0; }
-}
-```
-
-  </style>
 </head>
 <body>
 
-<!-- Loading bar -->
+<div id="loadbar"></div>
+<div id="offline-banner">Офлайн · показаны кэшированные данные</div>
 
-<div class="loading-bar" id="loadingBar"></div>
+<!-- ══ SETUP SCREEN ══ -->
 
-<!-- ══════════════════════════════════════════
-     TOKEN SETUP OVERLAY
-══════════════════════════════════════════ -->
-
-<div class="setup-overlay" id="setupOverlay" style="display:none">
+<div id="setup">
   <div class="setup-logo">Massiv<span>burg</span></div>
-  <div class="setup-tagline">Оперативный дашборд · Planfix<br>Введите токен для доступа к данным</div>
-  <div class="setup-form">
-    <div class="form-block">
-      <label class="form-label" for="setupToken">API Токен</label>
-      <input class="form-input" id="setupToken" type="text"
+  <div class="setup-sub">Оперативный дашборд · Planfix<br>Введите токен для доступа к данным</div>
+  <div class="setup-box">
+    <div class="f-block">
+      <label class="f-label" for="inp-pf-token">API Токен Planfix</label>
+      <input class="f-input" id="inp-pf-token" type="text"
         placeholder="Вставьте токен из Planfix"
         autocomplete="off" autocorrect="off" spellcheck="false">
-      <div class="form-hint">Управление аккаунтом → Доступ к API → REST API</div>
+      <div class="f-hint">Управление аккаунтом → Доступ к API → REST API</div>
     </div>
-    <button class="btn-primary" onclick="saveTokenAndStart()">Войти</button>
+    <button class="btn btn-primary" id="btn-login">Войти</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     HEADER
-══════════════════════════════════════════ -->
+<!-- ══ HEADER ══ -->
 
 <header class="header">
-  <div class="header-top">
-    <div class="header-logo">Massiv<span>burg</span></div>
-    <div class="header-actions">
-      <button class="icon-btn" onclick="refreshAll()" title="Обновить" id="refreshBtn">
+  <div class="header-row">
+    <div class="logo">Massiv<span>burg</span></div>
+    <div class="hdr-btns">
+      <button class="icon-btn" id="btn-refresh" title="Обновить">
         <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
       </button>
-      <button class="icon-btn" onclick="toggleTheme()" title="Тема" id="themeBtn">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      </button>
-      <button class="icon-btn" onclick="showExportModal()" title="Выгрузка для Telegram" id="exportBtn">
+      <button class="icon-btn" id="btn-export" title="Выгрузка для Telegram">
         <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
-      <button class="icon-btn" onclick="showSettings()" title="Настройки">
+      <button class="icon-btn" id="btn-theme" title="Тема">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-settings" title="Настройки">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
     </div>
   </div>
-
-  <!-- Tab bar -->
-
-  <div class="tabs-wrap" id="tabsWrap">
-    <button class="tab-btn active" data-tab="eskiz" onclick="switchTab('eskiz', this)">
-      Эскизы <span class="tab-count" id="cnt-eskiz">—</span>
-    </button>
-    <button class="tab-btn" data-tab="rd" onclick="switchTab('rd', this)">
-      РД <span class="tab-count" id="cnt-rd">—</span>
-    </button>
-    <button class="tab-btn" data-tab="kp" onclick="switchTab('kp', this)">
-      КП <span class="tab-count" id="cnt-kp">—</span>
-    </button>
-    <button class="tab-btn" data-tab="stolyar" onclick="switchTab('stolyar', this)">
-      Столяры <span class="tab-count" id="cnt-stolyar">—</span>
-    </button>
-    <button class="tab-btn" data-tab="sebes" onclick="switchTab('sebes', this)">
-      Себестоимость <span class="tab-count" id="cnt-sebes">—</span>
-    </button>
-    <button class="tab-btn" data-tab="vykrasy" onclick="switchTab('vykrasy', this)">
-      Выкрасы <span class="tab-count" id="cnt-vykrasy">—</span>
-    </button>
+  <div class="tabs" id="tabs-row">
+    <button class="tab on" data-key="eskiz">Эскизы <span class="tab-cnt" id="cnt-eskiz">—</span></button>
+    <button class="tab" data-key="rd">РД <span class="tab-cnt" id="cnt-rd">—</span></button>
+    <button class="tab" data-key="kp">КП <span class="tab-cnt" id="cnt-kp">—</span></button>
+    <button class="tab" data-key="stolyar">Столяры <span class="tab-cnt" id="cnt-stolyar">—</span></button>
+    <button class="tab" data-key="sebes">Себестоимость <span class="tab-cnt" id="cnt-sebes">—</span></button>
+    <button class="tab" data-key="vykrasy">Выкрасы <span class="tab-cnt" id="cnt-vykrasy">—</span></button>
   </div>
 </header>
 
-<!-- ══════════════════════════════════════════
-     TASK SCREENS
-══════════════════════════════════════════ -->
+<!-- ══ TASK SCREENS ══ -->
 
 <main>
-  <div class="screen active content" id="screen-eskiz"></div>
-  <div class="screen content" id="screen-rd"></div>
-  <div class="screen content" id="screen-kp"></div>
-  <div class="screen content" id="screen-stolyar"></div>
-  <div class="screen content" id="screen-sebes"></div>
-  <div class="screen content" id="screen-vykrasy"></div>
+  <div class="screen on" id="screen-eskiz"></div>
+  <div class="screen" id="screen-rd"></div>
+  <div class="screen" id="screen-kp"></div>
+  <div class="screen" id="screen-stolyar"></div>
+  <div class="screen" id="screen-sebes"></div>
+  <div class="screen" id="screen-vykrasy"></div>
 
-  <!-- Settings screen -->
+  <!-- Settings -->
 
   <div class="screen" id="screen-settings">
-    <div class="settings-screen">
-      <div class="settings-hd">Настройки</div>
-      <div class="settings-sub">API-токен Planfix сохраняется локально на устройстве</div>
-
-```
-  <div class="form-block">
-    <label class="form-label" for="tokenInput">API Токен</label>
-    <input class="form-input" id="tokenInput" type="text"
-      autocomplete="off" autocorrect="off" spellcheck="false"
-      placeholder="Вставьте токен">
-    <div class="form-hint">Управление аккаунтом → Доступ к API → REST API → Создать токен</div>
-  </div>
-  <button class="btn-primary" onclick="saveToken()">Сохранить токен Planfix</button>
-  <button class="btn-danger-outline" onclick="clearToken()">Сбросить и выйти</button>
-
-  <div class="divider"></div>
-
-  <div class="form-block">
-    <label class="form-label" for="claudeKeyInput">Claude API Key</label>
-    <input class="form-input" id="claudeKeyInput" type="password"
-      autocomplete="off" autocorrect="off" spellcheck="false"
-      placeholder="sk-ant-api03-...">
-    <div class="form-hint">platform.anthropic.com → API Keys. Уходит только на api.anthropic.com, хранится локально.</div>
-  </div>
-  <button class="btn-primary" onclick="saveClaudeKey()">Сохранить Claude Key</button>
-
-  <div class="divider"></div>
-
-  <div class="about-block">
-    <div class="about-row">
-      <span class="about-key">Аккаунт</span>
-      <span class="about-val">massivburg.planfix.ru</span>
+    <div class="settings-title">Настройки</div>
+    <div class="settings-sub">Токены хранятся локально на устройстве</div>
+    <div class="f-block">
+      <label class="f-label" for="inp-pf-token-s">Планфикс токен</label>
+      <input class="f-input" id="inp-pf-token-s" type="text"
+        autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Токен из Planfix">
+      <div class="f-hint">Управление аккаунтом → Доступ к API → REST API</div>
     </div>
-    <div class="about-row">
-      <span class="about-key">Последнее обновление</span>
-      <span class="about-val" id="lastUpdateInfo">—</span>
+    <button class="btn btn-primary" id="btn-save-pf">Сохранить токен</button>
+    <button class="btn btn-ghost" id="btn-reset">Сбросить и выйти</button>
+    <div class="divider"></div>
+    <div class="f-block">
+      <label class="f-label" for="inp-claude-key">Claude API Key</label>
+      <input class="f-input" id="inp-claude-key" type="password"
+        autocomplete="off" autocorrect="off" spellcheck="false" placeholder="sk-ant-api03-...">
+      <div class="f-hint">platform.anthropic.com → API Keys. Уходит только на api.anthropic.com.</div>
     </div>
-    <div class="about-row">
-      <span class="about-key">Статус токена</span>
-      <span class="about-val" id="tokenStatus">—</span>
+    <button class="btn btn-primary" id="btn-save-claude">Сохранить Claude Key</button>
+    <div class="divider"></div>
+    <div class="about-box">
+      <div class="about-row"><span class="about-k">Аккаунт</span><span class="about-v">massivburg.planfix.ru</span></div>
+      <div class="about-row"><span class="about-k">Обновлено</span><span class="about-v" id="s-updated">—</span></div>
+      <div class="about-row"><span class="about-k">Токен PF</span><span class="about-v" id="s-pf-status">—</span></div>
+      <div class="about-row"><span class="about-k">Claude Key</span><span class="about-v" id="s-cl-status">—</span></div>
     </div>
-  </div>
-</div>
-```
-
   </div>
 </main>
 
-<!-- ══════════════════════════════════════════
-     BOTTOM NAV
-══════════════════════════════════════════ */
+<!-- ══ BOTTOM NAV ══ -->
+
 <nav class="bottom-nav">
-  <div class="nav-info">
-    Обновлено: <span class="nav-time" id="lastUpdate">—</span>
-  </div>
-  <button class="icon-btn" onclick="refreshAll()" title="Обновить">
+  <div class="nav-info">Обновлено: <span class="nav-time" id="nav-time">—</span></div>
+  <button class="icon-btn" id="btn-refresh2">
     <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
   </button>
 </nav>
 
-<!-- Toast -->
+<!-- ══ REVEAL MODAL ══ -->
 
-<div class="toast" id="toast"></div>
-
-<!-- AI Reveal overlay -->
-
-<div class="reveal-wrap" id="revealWrap" onclick="dismissReveal()">
-  <div class="reveal-bg"></div>
-  <div class="reveal-card" id="revealCard"></div>
+<div id="reveal">
+  <div class="reveal-bg" id="reveal-bg"></div>
+  <div class="reveal-card" id="reveal-card"></div>
 </div>
 
-<!-- Export modal -->
+<!-- ══ EXPORT MODAL ══ -->
 
-<div class="modal-overlay" id="exportOverlay" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(20,18,10,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeExport()">
-  <div style="background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-height:88vh;display:flex;flex-direction:column;">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;">
-      <div style="font-family:var(--font-hd);font-size:18px;font-weight:500;letter-spacing:-.2px;">Выгрузка для Telegram</div>
-      <button class="icon-btn" onclick="closeExport()">
-        <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+<div id="export-modal">
+  <div class="export-bg" id="export-bg"></div>
+  <div class="export-sheet">
+    <div class="export-head">
+      <div class="export-title">Выгрузка для Telegram</div>
+      <button class="icon-btn" id="btn-close-export">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <!-- Tab selector -->
-    <div style="display:flex;gap:4px;padding:0 16px 12px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;">
-      <button class="exp-tab-btn active" onclick="selectExportTab('all',this)">Все</button>
-      <button class="exp-tab-btn" onclick="selectExportTab('eskiz',this)">Эскизы</button>
-      <button class="exp-tab-btn" onclick="selectExportTab('rd',this)">РД</button>
-      <button class="exp-tab-btn" onclick="selectExportTab('kp',this)">КП</button>
-      <button class="exp-tab-btn" onclick="selectExportTab('stolyar',this)">Столяры</button>
-      <button class="exp-tab-btn" onclick="selectExportTab('sebes',this)">Себестоимость</button>
-      <button class="exp-tab-btn" onclick="selectExportTab('vykrasy',this)">Выкрасы</button>
+    <div class="export-tabs" id="export-tabs">
+      <button class="etab on" data-ekey="all">Все</button>
+      <button class="etab" data-ekey="eskiz">Эскизы</button>
+      <button class="etab" data-ekey="rd">РД</button>
+      <button class="etab" data-ekey="kp">КП</button>
+      <button class="etab" data-ekey="stolyar">Столяры</button>
+      <button class="etab" data-ekey="sebes">Себестоимость</button>
+      <button class="etab" data-ekey="vykrasy">Выкрасы</button>
     </div>
-    <!-- Preview -->
-    <div style="flex:1;overflow-y:auto;padding:0 16px;-webkit-overflow-scrolling:touch;">
-      <div id="exportPreview" style="font-family:monospace;font-size:12px;line-height:1.7;color:var(--t1);white-space:pre-wrap;word-break:break-word;background:var(--bg);border-radius:8px;padding:12px 14px;min-height:120px;"></div>
-    </div>
-    <div style="padding:12px 16px calc(12px + var(--safe-bot));display:flex;gap:8px;">
-      <button class="btn-primary" style="flex:1" onclick="copyExport()">Копировать</button>
+    <div class="export-preview"><div class="export-text" id="export-text"></div></div>
+    <div class="export-foot">
+      <button class="btn btn-primary" id="btn-copy-export">Копировать</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     JAVASCRIPT
-══════════════════════════════════════════ -->
+<!-- ══ TOAST ══ -->
+
+<div id="toast"></div>
 
 <script>
 'use strict';
 
-/* ─── CONFIG ─────────────────────────────── */
-const BASE_URL = 'https://massivburg.planfix.ru/rest';
+/* ════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════ */
+const PF_BASE = 'https://massivburg.planfix.ru/rest';
 const STATUS_EXCLUDE = [3, 181, 134, 118, 7, 0];
-// user:81 = системный «Проектировщик не назначен»
-const DUMMY_USER = 'user:81';
+const DUMMY_USER_ID = 81; // «Не назначен» в Planfix
 
 const TABS = [
-  { key: 'eskiz',   label: 'Эскиз',          template: 1422,  groupByAssignee: true  },
-  { key: 'rd',      label: 'РД',             template: 1423,  groupByAssignee: true  },
-  { key: 'kp',      label: 'КП',             template: 1340,  groupByAssignee: false },
-  { key: 'stolyar', label: 'Столяр',         template: 4965,  groupByAssignee: true  },
-  { key: 'sebes',   label: 'Себестоимость',  template: 63742, groupByAssignee: false },
-  { key: 'vykrasy', label: 'Выкрас',         template: 3774,  groupByAssignee: false },
+  { key:'eskiz',   label:'Эскиз',         template:1422,  grouped:true  },
+  { key:'rd',      label:'РД',            template:1423,  grouped:true  },
+  { key:'kp',      label:'КП',            template:1340,  grouped:false },
+  { key:'stolyar', label:'Столяр',        template:4965,  grouped:true  },
+  { key:'sebes',   label:'Себестоимость', template:63742, grouped:false },
+  { key:'vykrasy', label:'Выкрас',        template:3774,  grouped:false },
 ];
+const KP_HIDE = ['заключен договор'];
+const TAB_EMOJI = { eskiz:'✏️', rd:'📐', kp:'💼', stolyar:'🪚', sebes:'💰', vykrasy:'🎨' };
 
-// КП: скрываем задачи со статусом "Заключен договор" (фильтруем по названию статуса)
-const KP_HIDDEN_STATUSES = ['заключен договор'];
-
-/* ─── STATE ──────────────────────────────── */
+/* ════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════ */
 let currentTab = 'eskiz';
-let taskData   = {};   // { eskiz: [], rd: [], ... }
-let isLoading  = false;
+let taskData   = {};   // key → Task[] | null(error)
+let loading    = false;
+let exportKey  = 'all';
+let revealTabKey = null;
 
-/* ─── TOKEN ──────────────────────────────── */
-function getToken() {
-  return localStorage.getItem('pf_token') || '';
-}
-function setToken(t) {
-  localStorage.setItem('pf_token', t.trim());
-}
+/* ════════════════════════════════════════════
+   STORAGE HELPERS
+════════════════════════════════════════════ */
+const LS = {
+  get: k => { try { return localStorage.getItem(k) || '' } catch(e) { return '' } },
+  set: (k,v) => { try { localStorage.setItem(k,v) } catch(e) {} },
+  del: k => { try { localStorage.removeItem(k) } catch(e) {} },
+  getJSON: k => { try { return JSON.parse(localStorage.getItem(k)) || null } catch(e) { return null } },
+  setJSON: (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch(e) {} },
+};
 
-/* ─── DATE UTILS ─────────────────────────── */
-// endDate format from API: "DD-MM-YYYY HH:MM" — never use new Date()
-function parseEndDate(str) {
+const getPFToken    = () => LS.get('pf_token');
+const getClaudeKey  = () => LS.get('claude_api_key');
+
+/* ════════════════════════════════════════════
+   DATE UTILS  (no new Date() for parsing)
+════════════════════════════════════════════ */
+function parseDate(str) {
+  // API format: "DD-MM-YYYY HH:MM" or "DD-MM-YYYY" or ""
   if (!str || typeof str !== 'string') return null;
-  const trimmed = str.trim();
-  if (!trimmed) return null;
-  const [datePart] = trimmed.split(' ');
-  const parts = datePart.split('-');
-  if (parts.length < 3) return null;
-  const d = parts[0], m = parts[1], y = parts[2];
-  // Guard against "00-00-0000" or missing year
+  const s = str.trim();
+  if (!s) return null;
+  const datePart = s.split(' ')[0];
+  const p = datePart.split('-');
+  if (p.length < 3) return null;
+  const [d, m, y] = p;
   if (!y || y === '0000' || y.length < 4) return null;
   if (!m || m === '00') return null;
   if (!d || d === '00') return null;
   return { d, m, y };
 }
-function formatEndDate(str) {
-  const p = parseEndDate(str);
-  if (!p) return null;
-  return `${p.d}-${p.m}-${p.y}`;
+
+function fmtDate(str) {
+  const p = parseDate(str);
+  return p ? `${p.d}-${p.m}-${p.y}` : null;
 }
+
 function isOverdue(str) {
-  const p = parseEndDate(str);
+  const p = parseDate(str);
   if (!p) return false;
   const now = new Date();
-  const nd = now.getDate(), nm = now.getMonth()+1, ny = now.getFullYear();
-  const ty = parseInt(p.y,10), tm = parseInt(p.m,10), td = parseInt(p.d,10);
+  const ny = now.getFullYear(), nm = now.getMonth()+1, nd = now.getDate();
+  const ty = +p.y, tm = +p.m, td = +p.d;
   if (ty < ny) return true;
   if (ty === ny && tm < nm) return true;
   if (ty === ny && tm === nm && td < nd) return true;
   return false;
 }
 
-/* ─── API ────────────────────────────────── */
-async function fetchTasks(templateId, offset = 0) {
-  const token = getToken();
-  const res = await fetch(`${BASE_URL}/task/list`, {
+function todayStr() {
+  const n = new Date();
+  return `${pad(n.getDate())}.${pad(n.getMonth()+1)}.${n.getFullYear()}`;
+}
+
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function nowHM() {
+  const n = new Date();
+  return `${pad(n.getHours())}:${pad(n.getMinutes())}`;
+}
+
+/* ════════════════════════════════════════════
+   TASK HELPERS
+════════════════════════════════════════════ */
+function isUnassigned(task) {
+  const users = task.assignees?.users || [];
+  if (!users.length) return true;
+  if (users.length === 1 && +users[0].id === DUMMY_USER_ID) return true;
+  return false;
+}
+
+function assigneeName(task) {
+  const users = task.assignees?.users || [];
+  if (!users.length) return null;
+  if (users.length === 1 && +users[0].id === DUMMY_USER_ID) return null;
+  return users[0].name || null;
+}
+
+/* ════════════════════════════════════════════
+   PLANFIX API
+════════════════════════════════════════════ */
+async function pfFetch(templateId, offset = 0) {
+  const token = getPFToken();
+  if (!token) throw new Error('Нет токена Planfix');
+
+  const res = await fetch(`${PF_BASE}/task/list`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
-      'Content-Type':  'application/json'
+      'Content-Type':  'application/json',
     },
     body: JSON.stringify({
       fields:   'id,name,status,assignees,endDate',
@@ -892,253 +543,243 @@ async function fetchTasks(templateId, offset = 0) {
       offset,
       filters: [
         { type: 51, operator: 'equal',    value: templateId },
-        { type: 10, operator: 'notequal', value: STATUS_EXCLUDE }
+        { type: 10, operator: 'notequal', value: STATUS_EXCLUDE },
       ]
     })
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = await res.json();
-  if (data.result !== 'success') throw new Error(data.error || 'Ошибка API');
+
+  const raw = await res.text();
+  if (!res.ok) {
+    let msg = `HTTP ${res.status}`;
+    try { msg = JSON.parse(raw)?.error || msg; } catch(_) {}
+    throw new Error(msg);
+  }
+  const data = JSON.parse(raw);
+  if (data.result !== 'success') throw new Error(data.error || 'Ошибка API Planfix');
   return data.tasks || [];
 }
 
-async function getAllTasks(templateId) {
+async function pfFetchAll(templateId) {
   let offset = 0, all = [];
   while (true) {
-    const batch = await fetchTasks(templateId, offset);
+    const batch = await pfFetch(templateId, offset);
     all = all.concat(batch);
     if (batch.length < 100) break;
     offset += 100;
-    // Planfix: 1 rps limit — throttle
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise(r => setTimeout(r, 350)); // rate limit
   }
   return all;
 }
 
-/* ─── REFRESH ────────────────────────────── */
-async function refreshAll() {
-  if (isLoading) return;
-  const token = getToken();
-  if (!token) { showSetup(); return; }
+/* ════════════════════════════════════════════
+   OFFLINE CACHE
+════════════════════════════════════════════ */
+function saveCache(data) { LS.setJSON('pf_last_data', { data, ts: Date.now() }); }
+function loadCache() { return LS.getJSON('pf_last_data'); }
 
-  isLoading = true;
+function showOffline(ts) {
+  const b = document.getElementById('offline-banner');
+  b.textContent = ts
+    ? `Офлайн · данные ${fmtCacheAge(ts)}`
+    : 'Офлайн · кэшированные данные';
+  b.classList.add('on');
+}
+function hideOffline() {
+  document.getElementById('offline-banner').classList.remove('on');
+}
+function fmtCacheAge(ts) {
+  const d = Math.floor((Date.now()-ts)/60000);
+  if (d < 1) return 'только что';
+  if (d < 60) return `${d} мин назад`;
+  return `${Math.floor(d/60)} ч назад`;
+}
+
+/* ════════════════════════════════════════════
+   REFRESH ALL
+════════════════════════════════════════════ */
+async function refreshAll() {
+  if (loading) return;
+  if (!getPFToken()) { showSetup(); return; }
+
+  loading = true;
   setLoading(true);
 
-  // Show spinners in all tabs
+  // Show spinners
   TABS.forEach(t => {
-    document.getElementById(`screen-${t.key}`).innerHTML = spinnerHTML(`Загружаю ${t.label}…`);
+    document.getElementById(`screen-${t.key}`).innerHTML =
+      `<div class="spin-wrap"><div class="spinner"></div>Загружаю ${t.label}…</div>`;
     document.getElementById(`cnt-${t.key}`).textContent = '…';
   });
 
   try {
-    // Parallel fetch — all 6 tab types
     const results = await Promise.allSettled(
-      TABS.map(t => getAllTasks(t.template))
+      TABS.map(t => pfFetchAll(t.template))
     );
 
-    results.forEach((res, i) => {
-      const t = TABS[i];
-      if (res.status === 'fulfilled') {
-        taskData[t.key] = res.value;
+    let anyOk = false;
+    results.forEach((r, i) => {
+      const key = TABS[i].key;
+      if (r.status === 'fulfilled') {
+        taskData[key] = r.value;
+        anyOk = true;
       } else {
-        taskData[t.key] = null; // error sentinel
-        console.error(`[${t.key}]`, res.reason);
+        taskData[key] = null;
+        console.error(`[${key}]`, r.reason);
       }
     });
 
-    // Render all tabs
+    if (!anyOk) throw new Error('Все запросы завершились с ошибкой');
+
     TABS.forEach(t => renderTab(t.key));
+    saveCache(taskData);
+    hideOffline();
 
-    // Save to offline cache
-    saveToCache(taskData);
-    hideOfflineBanner();
+    const hm = nowHM();
+    document.getElementById('nav-time').textContent = hm;
+    document.getElementById('s-updated').textContent = `Сегодня в ${hm}`;
+    toast('✓ Данные обновлены');
 
-    // Update last-update time
-    const now = new Date();
-    const hm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    document.getElementById('lastUpdate').textContent = hm;
-    document.getElementById('lastUpdateInfo').textContent = `Сегодня в ${hm}`;
-
-    showToast('✓ Данные обновлены');
-  } catch (e) {
-    // Network error — try cache
-    const cached = loadFromCache();
-    if (cached) {
+  } catch(e) {
+    // Try offline cache
+    const cached = loadCache();
+    if (cached && cached.data) {
       taskData = cached.data;
       TABS.forEach(t => renderTab(t.key));
-      showOfflineBanner(cached.ts);
-      showToast('Офлайн · показаны кэшированные данные', 'error');
+      showOffline(cached.ts);
+      toast('Офлайн — показаны кэшированные данные', 'err');
     } else {
-      showToast(`Ошибка: ${e.message}`, 'error');
+      TABS.forEach(t => {
+        document.getElementById(`screen-${t.key}`).innerHTML =
+          `<div class="state"><span class="state-icon">⚠️</span>
+           <div class="state-title">Ошибка загрузки</div>
+           <div class="state-text state-err">${esc(e.message)}</div></div>`;
+        document.getElementById(`cnt-${t.key}`).textContent = '!';
+      });
+      toast('Ошибка: ' + e.message, 'err');
     }
   } finally {
-    isLoading = false;
+    loading = false;
     setLoading(false);
   }
 }
 
-function pad(n) { return String(n).padStart(2,'0'); }
-
-/* ─── RENDER ─────────────────────────────── */
+/* ════════════════════════════════════════════
+   RENDER TAB
+════════════════════════════════════════════ */
 function renderTab(key) {
-  const tab   = TABS.find(t => t.key === key);
-  const el    = document.getElementById(`screen-${key}`);
-  const cnt   = document.getElementById(`cnt-${key}`);
-  let tasks   = taskData[key];
+  const tab  = TABS.find(t => t.key === key);
+  const el   = document.getElementById(`screen-${key}`);
+  const cnt  = document.getElementById(`cnt-${key}`);
+  let tasks  = taskData[key];
 
   if (tasks === null) {
     cnt.textContent = '!';
-    el.innerHTML = `<div class="state-box">
-      <span class="state-icon">⚠️</span>
+    el.innerHTML = `<div class="state"><span class="state-icon">⚠️</span>
       <div class="state-title">Не удалось загрузить</div>
-      <div class="state-text state-error">Проверьте токен или соединение</div>
-    </div>`;
-    return;
-  }
-  if (!tasks || tasks.length === 0) {
-    cnt.textContent = '0';
-    el.innerHTML = `<div class="state-box">
-      <span class="state-icon">✓</span>
-      <div class="state-title">Задач нет</div>
-      <div class="state-text">Все активные задачи выполнены</div>
-    </div>`;
+      <div class="state-text state-err">Проверьте токен или соединение</div></div>`;
     return;
   }
 
-  // КП: скрываем "Заключен договор"
+  // КП: скрываем «Заключен договор»
   if (key === 'kp') {
-    tasks = tasks.filter(t => {
-      const sname = (t.status?.name || '').toLowerCase();
-      return !KP_HIDDEN_STATUSES.includes(sname);
-    });
+    tasks = tasks.filter(t =>
+      !KP_HIDE.includes((t.status?.name || '').toLowerCase())
+    );
   }
 
   cnt.textContent = tasks.length;
 
-  let html = `<div style="padding-top:4px">`;
-
-  if (tab.groupByAssignee) {
-    // ── Группировка по исполнителю, сортировка А→Я ──
-    const unassigned = tasks.filter(t => isUnassigned(t));
-    const assigned   = tasks.filter(t => !isUnassigned(t));
-
-    // Показываем незаконченные сначала
-    if (unassigned.length > 0) {
-      html += `<div class="unassigned-hd">⚠️ Не назначен · ${unassigned.length}</div>`;
-      // Сортируем внутри группы А→Я по названию
-      unassigned.sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ru'));
-      unassigned.forEach(t => { html += taskCardHTML(t, tab.label); });
-      html += `<div style="height:8px"></div>`;
-    }
-
-    // Группируем назначенных по имени исполнителя, сортировка А→Я
-    const byAssignee = {};
-    assigned.forEach(t => {
-      const name = getAssigneeName(t) || '—';
-      if (!byAssignee[name]) byAssignee[name] = [];
-      byAssignee[name].push(t);
-    });
-
-    const sortedNames = Object.keys(byAssignee).sort((a,b) => a.localeCompare(b, 'ru'));
-    sortedNames.forEach(assigneeName => {
-      const group = byAssignee[assigneeName];
-      // Сортируем задачи А→Я внутри группы
-      group.sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ru'));
-      html += `<div class="group-hd">
-        <span class="group-hd-name">${escHtml(assigneeName)}</span>
-        <span class="group-hd-cnt">${group.length}</span>
-      </div>`;
-      group.forEach(t => { html += taskCardHTML(t, tab.label); });
-      html += `<div style="height:6px"></div>`;
-    });
-
-  } else {
-    // ── Обычный вид: сначала без исполнителя ──
-    const unassigned = tasks.filter(t => isUnassigned(t));
-    const assigned   = tasks.filter(t => !isUnassigned(t));
-
-    if (unassigned.length > 0) {
-      html += `<div class="unassigned-hd">⚠️ Не назначен · ${unassigned.length}</div>`;
-      unassigned.forEach(t => { html += taskCardHTML(t, tab.label); });
-      html += `<div style="height:8px"></div>`;
-    }
-    assigned.forEach(t => { html += taskCardHTML(t, tab.label); });
+  if (!tasks.length) {
+    el.innerHTML = `<div class="state"><span class="state-icon">✓</span>
+      <div class="state-title">Задач нет</div>
+      <div class="state-text">Все активные задачи выполнены</div></div>`;
+    return;
   }
 
-  // AI panel at bottom
-  html += `<div class="ai-panel">${buildAiPanelHTML(key)}</div>`;
-  html += `</div>`;
+  let html = '<div>';
+
+  const unassigned = tasks.filter(t => isUnassigned(t));
+  const assigned   = tasks.filter(t => !isUnassigned(t));
+
+  if (tab.grouped) {
+    // Блок незаконченных
+    if (unassigned.length) {
+      html += `<div class="grp-unassigned">⚠️ Не назначен · ${unassigned.length}</div>`;
+      unassigned
+        .sort((a,b) => (a.name||'').localeCompare(b.name||'','ru'))
+        .forEach(t => { html += cardHTML(t, tab.label); });
+      html += '<div class="grp-gap"></div>';
+    }
+    // Группировка по исполнителю А→Я
+    const byPerson = {};
+    assigned.forEach(t => {
+      const n = assigneeName(t) || '—';
+      (byPerson[n] = byPerson[n] || []).push(t);
+    });
+    Object.keys(byPerson).sort((a,b) => a.localeCompare(b,'ru')).forEach(name => {
+      const group = byPerson[name].sort((a,b) => (a.name||'').localeCompare(b.name||'','ru'));
+      html += `<div class="grp-assignee">
+        <span class="grp-assignee-name">${esc(name)}</span>
+        <span class="grp-cnt">${group.length}</span></div>`;
+      group.forEach(t => { html += cardHTML(t, tab.label); });
+      html += '<div class="grp-gap"></div>';
+    });
+  } else {
+    if (unassigned.length) {
+      html += `<div class="grp-unassigned">⚠️ Не назначен · ${unassigned.length}</div>`;
+      unassigned.forEach(t => { html += cardHTML(t, tab.label); });
+      html += '<div class="grp-gap"></div>';
+    }
+    assigned.forEach(t => { html += cardHTML(t, tab.label); });
+  }
+
+  // AI панель
+  html += `<div class="ai-panel">${aiPanelHTML(key)}</div>`;
+  html += '</div>';
   el.innerHTML = html;
 }
 
-function isUnassigned(task) {
-  const users = task.assignees?.users || [];
-  if (users.length === 0) return true;
-  if (users.length === 1 && users[0].id === DUMMY_USER) return true;
-  return false;
-}
+/* ════════════════════════════════════════════
+   CARD HTML
+════════════════════════════════════════════ */
+function cardHTML(task, tabLabel) {
+  const name     = esc(task.name || '—');
+  const st       = task.status || {};
+  const color    = st.color || '#8A8985';
+  const stName   = esc(st.name || '');
+  const aName    = assigneeName(task);
+  const noAssign = !aName;
+  const dl       = fmtDate(task.endDate);
+  const over     = task.endDate ? isOverdue(task.endDate) : false;
+  const copyStr  = buildCopyStr(tabLabel, task.name, aName, dl);
+  const clr2     = hexAlpha(color, .1);
 
-function getAssigneeName(task) {
-  const users = task.assignees?.users || [];
-  if (users.length === 0) return null;
-  if (users.length === 1 && users[0].id === DUMMY_USER) return null;
-  return users[0].name;
-}
-
-function taskCardHTML(task, tabLabel) {
-  const name      = escHtml(task.name || '—');
-  const statusObj = task.status || {};
-  const color     = statusObj.color || '#8A8985';
-  const statusName= escHtml(statusObj.name || '');
-  const assignee  = getAssigneeName(task);
-  const unassigned= !assignee;
-  const deadline  = formatEndDate(task.endDate);
-  const overdue   = task.endDate ? isOverdue(task.endDate) : false;
-
-  // Priority bar color from status color (reuse status color for accent bar)
-  const barColor  = color;
-
-  // Copy text builder
-  const copyText  = buildCopyText(tabLabel, task.name, assignee, deadline);
-
-  return `<div class="task-card">
-    <div class="priority-bar" style="background:${barColor}"></div>
-    <div class="task-inner">
-      <div class="task-name">${name}</div>
-      <div class="task-meta">
-        <div class="task-status" style="background:${colorAlpha(color,.1)};color:${color}">
-          <span class="status-dot" style="background:${color}"></span>
-          ${statusName}
-        </div>
-        <div class="task-assignee${unassigned?' unassigned':''}">
-          ${unassigned
-            ? '⚠️ Не назначен'
-            : '👤 ' + escHtml(assignee)
-          }
-        </div>
-        ${deadline
-          ? `<div class="task-deadline${overdue?' overdue':''}">
-              ${overdue?'⏰ ':'📅 '}${deadline}
-             </div>`
-          : `<div class="task-deadline" style="color:var(--t3)">Без срока</div>`
-        }
+  return `<div class="card">
+    <div class="pbar" style="background:${color}"></div>
+    <div class="card-name">${name}</div>
+    <div class="card-meta">
+      <div class="status-pill" style="background:${clr2};color:${color}">
+        <span class="status-dot" style="background:${color}"></span>${stName}
       </div>
-      <div class="task-actions">
-        <button class="copy-btn" onclick="copyTask(event,'${escAttr(copyText)}')">Копировать</button>
+      <div class="assignee${noAssign?' none':''}">
+        ${noAssign ? '⚠️ Не назначен' : '👤 '+esc(aName)}
       </div>
+      ${dl
+        ? `<div class="deadline${over?' over':''}"> ${over?'⏰':'📅'} ${dl}</div>`
+        : `<div class="deadline" style="color:var(--t3)">Без срока</div>`
+      }
+    </div>
+    <div class="card-foot">
+      <button class="copy-btn" data-copy="${esc(copyStr)}">Копировать</button>
     </div>
   </div>`;
 }
 
-function buildCopyText(tabLabel, taskName, assignee, deadline) {
-  const name  = (taskName || '').trim();
-  const exec  = assignee || 'Не назначен';
-  const dl    = deadline ? `до ${deadline}` : 'без срока';
-  return `${tabLabel} ${name} · ${exec} · ${dl}`;
+function buildCopyStr(label, name, aName, dl) {
+  return `${label} ${(name||'').trim()} · ${aName || 'Не назначен'} · ${dl ? 'до '+dl : 'без срока'}`;
 }
 
-function colorAlpha(hex, a) {
-  // hex like #3377C3 → rgba
+function hexAlpha(hex, a) {
   const r = parseInt(hex.slice(1,3),16);
   const g = parseInt(hex.slice(3,5),16);
   const b = parseInt(hex.slice(5,7),16);
@@ -1146,351 +787,30 @@ function colorAlpha(hex, a) {
   return `rgba(${r},${g},${b},${a})`;
 }
 
-function spinnerHTML(msg) {
-  return `<div class="spinner-wrap"><div class="spinner"></div>${escHtml(msg)}</div>`;
-}
-
-/* ─── TAB SWITCH ─────────────────────────── */
-function switchTab(key, btn) {
-  if (currentTab === key) return;
-
-  // Hide old screen
-  document.getElementById(`screen-${currentTab}`).classList.remove('active');
-  // Show new screen
-  document.getElementById(`screen-${key}`).classList.add('active');
-
-  // Update tab buttons
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  currentTab = key;
-}
-
-/* ─── SETTINGS ───────────────────────────── */
-function showSettings() {
-  // Deactivate current task screen
-  document.getElementById(`screen-${currentTab}`).classList.remove('active');
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-  document.getElementById('screen-settings').classList.add('active');
-
-  // Populate token field
-  document.getElementById('tokenInput').value = getToken();
-  document.getElementById('tokenStatus').textContent = getToken() ? '✓ Задан' : '✗ Не задан';
-}
-
-function backToTasks() {
-  document.getElementById('screen-settings').classList.remove('active');
-  const btn = document.querySelector(`[data-tab="${currentTab}"]`);
-  document.getElementById(`screen-${currentTab}`).classList.add('active');
-  if (btn) btn.classList.add('active');
-}
-
-function saveToken() {
-  const val = document.getElementById('tokenInput').value.trim();
-  if (!val) { showToast('Введите токен', 'error'); return; }
-  setToken(val);
-  showToast('✓ Токен сохранён');
-  document.getElementById('tokenStatus').textContent = '✓ Задан';
-  setTimeout(() => {
-    backToTasks();
-    refreshAll();
-  }, 700);
-}
-
-function clearToken() {
-  if (!confirm('Сбросить токен? Данные не будут доступны до его повторного ввода.')) return;
-  localStorage.removeItem('pf_token');
-  taskData = {};
-  showSetup();
-}
-
-/* ─── SETUP OVERLAY ──────────────────────── */
-function showSetup() {
-  document.getElementById('setupOverlay').classList.add('visible');
-}
-function hideSetup() {
-  document.getElementById('setupOverlay').classList.remove('visible');
-}
-
-function saveTokenAndStart() {
-  const val = document.getElementById('setupToken').value.trim();
-  console.log('[Login] token length:', val.length);
-  if (!val) { showToast('Введите токен', 'error'); return; }
-  setToken(val);
-  console.log('[Login] token saved, hiding overlay');
-  hideSetup();
-  console.log('[Login] starting refresh');
-  refreshAll();
-}
-
-/* ─── COPY ───────────────────────────────── */
-function copyTask(e, text) {
-  e.stopPropagation();
-  const decoded = text.replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
-  navigator.clipboard.writeText(decoded)
-    .then(() => showToast('Скопировано'))
-    .catch(() => {
-      // Fallback
-      const ta = document.createElement('textarea');
-      ta.value = decoded; ta.style.position='fixed'; ta.style.opacity='0';
-      document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      showToast('Скопировано');
-    });
-}
-
-/* ─── TOAST ──────────────────────────────── */
-let _toastTimer;
-function showToast(msg, type = 'default') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast show' + (type !== 'default' ? ` ${type}` : '');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => { el.classList.remove('show'); }, 2200);
-}
-
-/* ─── THEME ──────────────────────────────── */
-function toggleTheme() {
-  const html = document.documentElement;
-  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', next);
-  localStorage.setItem('pf_theme', next);
-}
-
-/* ─── LOADING BAR ────────────────────────── */
-function setLoading(on) {
-  document.getElementById('loadingBar').classList.toggle('active', on);
-  document.getElementById('refreshBtn').style.opacity = on ? '.4' : '';
-}
-
-/* ─── HTML ESCAPE ────────────────────────── */
-function escHtml(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
-function escAttr(s) {
-  return escHtml(s);
-}
-
-/* ─── OFFLINE CACHE (localStorage) ──────── */
-// Сохраняем последние данные чтобы показать их офлайн
-const CACHE_KEY = 'pf_last_data';
-
-function saveToCache(data) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-      data,
-      ts: Date.now()
-    }));
-  } catch(e) {}
-}
-
-function loadFromCache() {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch(e) { return null; }
-}
-
-function showOfflineBanner(ts) {
-  const ago = ts ? formatCacheAge(ts) : '';
-  let banner = document.getElementById('offlineBanner');
-  if (!banner) {
-    banner = document.createElement('div');
-    banner.id = 'offlineBanner';
-    banner.style.cssText = [
-      'position:fixed', 'top:var(--safe-top)', 'left:0', 'right:0', 'z-index:600',
-      'background:var(--warn)', 'color:#fff',
-      'font-size:11px', 'font-weight:600',
-      'text-align:center', 'padding:6px 16px',
-      'letter-spacing:.3px'
-    ].join(';');
-    document.body.prepend(banner);
-  }
-  banner.textContent = 'Офлайн · данные ' + ago;
-}
-
-function hideOfflineBanner() {
-  const b = document.getElementById('offlineBanner');
-  if (b) b.remove();
-}
-
-function formatCacheAge(ts) {
-  const diff = Math.floor((Date.now() - ts) / 60000);
-  if (diff < 1)  return 'только что';
-  if (diff < 60) return `${diff} мин назад`;
-  const h = Math.floor(diff / 60);
-  return `${h} ч назад`;
-}
-
-/* ─── SERVICE WORKER REGISTRATION ───────── */
-/* ─── TELEGRAM EXPORT ───────────────────── */
-let exportTabKey = 'all';
-
-function showExportModal() {
-  if (!Object.keys(taskData).length) {
-    showToast('Сначала загрузите данные', 'error'); return;
-  }
-  exportTabKey = 'all';
-  // Reset tab buttons
-  document.querySelectorAll('.exp-tab-btn').forEach((b,i) => b.classList.toggle('active', i===0));
-  renderExportPreview();
-  const ov = document.getElementById('exportOverlay');
-  ov.style.display = 'flex';
-  requestAnimationFrame(() => ov.style.opacity = '1');
-}
-
-function closeExport() {
-  document.getElementById('exportOverlay').style.display = 'none';
-}
-
-function selectExportTab(key, btn) {
-  exportTabKey = key;
-  document.querySelectorAll('.exp-tab-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderExportPreview();
-}
-
-function buildExportText(key) {
-  const tab = TABS.find(t => t.key === key);
-  let tasks = taskData[key];
-  if (!tasks || tasks.length === 0) return null;
-
-  // Apply same КП filter
-  if (key === 'kp') {
-    tasks = tasks.filter(t => !KP_HIDDEN_STATUSES.includes((t.status?.name||'').toLowerCase()));
-  }
-  if (tasks.length === 0) return null;
-
-  const lines = [];
-  const emoji = { eskiz:'✏️', rd:'📐', kp:'💼', stolyar:'🪚', sebes:'💰', vykrasy:'🎨' };
-  lines.push(`${emoji[key]||'📋'} *${tab.label.toUpperCase()}* (${tasks.length})`);
-  lines.push('');
-
-  if (tab.groupByAssignee) {
-    // Группировка по исполнителю
-    const unassigned = tasks.filter(t => isUnassigned(t));
-    const assigned   = tasks.filter(t => !isUnassigned(t));
-
-    if (unassigned.length > 0) {
-      lines.push('⚠️ *Не назначен*');
-      unassigned
-        .sort((a,b) => (a.name||'').localeCompare(b.name||'','ru'))
-        .forEach(t => lines.push(taskLine(t)));
-      lines.push('');
-    }
-
-    const byAssignee = {};
-    assigned.forEach(t => {
-      const n = getAssigneeName(t) || '—';
-      if (!byAssignee[n]) byAssignee[n] = [];
-      byAssignee[n].push(t);
-    });
-
-    Object.keys(byAssignee).sort((a,b) => a.localeCompare(b,'ru')).forEach(name => {
-      lines.push(`👤 *${name}*`);
-      byAssignee[name]
-        .sort((a,b) => (a.name||'').localeCompare(b.name||'','ru'))
-        .forEach(t => lines.push(taskLine(t)));
-      lines.push('');
-    });
-  } else {
-    const unassigned = tasks.filter(t => isUnassigned(t));
-    const assigned   = tasks.filter(t => !isUnassigned(t));
-    if (unassigned.length > 0) {
-      lines.push('⚠️ *Не назначен*');
-      unassigned.forEach(t => lines.push(taskLine(t)));
-      lines.push('');
-    }
-    assigned.forEach(t => lines.push(taskLine(t)));
-  }
-
-  return lines.join('\n').trim();
-}
-
-function taskLine(task) {
-  const name     = (task.name || '—').trim();
-  const deadline = formatEndDate(task.endDate);
-  const over     = task.endDate ? isOverdue(task.endDate) : false;
-  const dl       = deadline ? ` · ${over?'⏰':'📅'} ${deadline}` : '';
-  const st       = task.status?.name ? ` [${task.status.name}]` : '';
-  return `  • ${name}${st}${dl}`;
-}
-
-function renderExportPreview() {
-  let text = '';
-  const now = new Date();
-  const dateStr = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()}`;
-
-  if (exportTabKey === 'all') {
-    const parts = [];
-    const header = `📊 *Massivburg · Дашборд ${dateStr}*`;
-    parts.push(header);
-    parts.push('');
-    TABS.forEach(t => {
-      const block = buildExportText(t.key);
-      if (block) { parts.push(block); parts.push(''); }
-    });
-    text = parts.join('\n').trim();
-  } else {
-    const block = buildExportText(exportTabKey);
-    const dateHdr = `📊 *Massivburg · ${TABS.find(t=>t.key===exportTabKey)?.label} ${dateStr}*\n`;
-    text = block ? dateHdr + '\n' + block : 'Нет данных';
-  }
-
-  document.getElementById('exportPreview').textContent = text;
-}
-
-function copyExport() {
-  const text = document.getElementById('exportPreview').textContent;
-  if (!text) return;
-  navigator.clipboard.writeText(text)
-    .then(() => showToast('Скопировано для Telegram'))
-    .catch(() => {
-      const ta = document.createElement('textarea');
-      ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
-      document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      showToast('Скопировано для Telegram');
-    });
-}
-
-/* ─── CLAUDE API ─────────────────────────── */
-function getClaudeKey() {
-  return localStorage.getItem('claude_api_key') || '';
-}
-function saveClaudeKey() {
-  const val = document.getElementById('claudeKeyInput').value.trim();
-  if (!val) { showToast('Введите API ключ', 'error'); return; }
-  localStorage.setItem('claude_api_key', val);
-  showToast('✓ Claude Key сохранён');
-}
-
-async function callClaude(systemPrompt, userMsg, maxTokens = 600) {
+/* ════════════════════════════════════════════
+   CLAUDE API
+════════════════════════════════════════════ */
+async function callClaude(system, user, maxTokens = 700) {
   const key = getClaudeKey();
-  if (!key) throw new Error('Claude API Key не задан. Откройте ⚙ настройки.');
+  if (!key) throw new Error('Claude API Key не задан — откройте ⚙ настройки');
   const body = {
     model: 'claude-sonnet-4-6',
     max_tokens: maxTokens,
-    messages: [{ role: 'user', content: userMsg }]
+    messages: [{ role: 'user', content: user }]
   };
-  if (systemPrompt) body.system = systemPrompt;
+  if (system) body.system = system;
   const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': key,
       'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
+      'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify(body)
   });
   const raw = await r.text();
-  console.log('[Claude]', r.status, raw.slice(0, 200));
+  console.log('[Claude]', r.status, raw.slice(0,200));
   if (!r.ok) {
     let m = 'HTTP ' + r.status;
     try { m = JSON.parse(raw)?.error?.message || m; } catch(_) {}
@@ -1499,238 +819,446 @@ async function callClaude(systemPrompt, userMsg, maxTokens = 600) {
   return JSON.parse(raw).content[0].text.trim();
 }
 
-/* ─── AI CACHE ───────────────────────────── */
-// Кэш: { [tabKey]: { text, digest, ts } }
-const AI_CACHE_KEY = 'pf_ai_cache';
-
-function getAiCache() {
-  try { return JSON.parse(localStorage.getItem(AI_CACHE_KEY) || '{}'); } catch(e) { return {}; }
-}
-function setAiCache(key, entry) {
-  const cache = getAiCache();
-  cache[key] = entry;
-  try { localStorage.setItem(AI_CACHE_KEY, JSON.stringify(cache)); } catch(e) {}
-}
-function getCachedAi(key) {
+/* ════════════════════════════════════════════
+   AI CACHE
+════════════════════════════════════════════ */
+function getAiCache()        { return LS.getJSON('pf_ai_cache') || {}; }
+function todayKey()          { const n=new Date(); return `${n.getFullYear()}-${n.getMonth()}-${n.getDate()}`; }
+function getCachedAi(key)   {
   const c = getAiCache()[key];
-  if (!c) return null;
-  // Кэш живёт до конца текущего дня
-  const today = new Date();
-  const d = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
-  if (c.day !== d) return null;
+  if (!c || c.day !== todayKey()) return null;
   return c;
 }
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+function setCachedAi(key, entry) {
+  const cache = getAiCache();
+  cache[key] = entry;
+  LS.setJSON('pf_ai_cache', cache);
 }
 
-/* ─── AI PANEL HTML ──────────────────────── */
-function buildAiPanelHTML(tabKey) {
-  const cached = getCachedAi(tabKey);
-  const hasKey = !!getClaudeKey();
-  if (!hasKey) {
-    return `<button class="ai-trigger-btn" onclick="showSettings()" style="color:var(--t2)">
-      🔑 Добавить Claude API Key для анализа
-    </button>`;
+/* ════════════════════════════════════════════
+   AI PANEL HTML
+════════════════════════════════════════════ */
+function aiPanelHTML(key) {
+  if (!getClaudeKey()) {
+    return `<button class="ai-btn" style="color:var(--t2)" data-action="go-settings">
+      🔑 Добавить Claude API Key для анализа</button>`;
   }
-  let btn = `<button class="ai-trigger-btn" id="ai-btn-${tabKey}" onclick="generateAi('${tabKey}', this)">
-    ✦ Сгенерировать анализ ИИ
-  </button>`;
+  const cached = getCachedAi(key);
+  let html = `<button class="ai-btn" data-ai-key="${key}">
+    ${cached ? '↻ Обновить анализ' : '✦ Сгенерировать анализ ИИ'}</button>`;
   if (cached) {
-    btn = `<button class="ai-trigger-btn" id="ai-btn-${tabKey}" onclick="generateAi('${tabKey}', this)">
-      ↻ Обновить анализ
-    </button>
-    <div class="ai-cached-row" onclick="showAiReveal('${tabKey}')">
-      <div class="ai-cached-dot"></div>
-      <div class="ai-cached-preview">${escHtml(cached.digest || cached.text.slice(0, 80))}</div>
-      <div class="ai-cached-arr">›</div>
+    html += `<div class="ai-preview" data-show-reveal="${key}">
+      <div class="ai-prev-dot"></div>
+      <div class="ai-prev-text">${esc(cached.digest || cached.text.slice(0,90))}</div>
+      <div class="ai-prev-arr">›</div>
     </div>`;
   }
-  return btn;
+  return html;
 }
 
-/* ─── GENERATE AI ANALYSIS ───────────────── */
-async function generateAi(tabKey, btn) {
-  const tasks = taskData[tabKey];
-  if (!tasks || tasks.length === 0) { showToast('Нет данных для анализа', 'error'); return; }
+/* ════════════════════════════════════════════
+   GENERATE AI
+════════════════════════════════════════════ */
+async function generateAi(key, btn) {
+  const tab = TABS.find(t => t.key === key);
+  let tasks = taskData[key] || [];
+  if (key === 'kp') tasks = tasks.filter(t => !KP_HIDE.includes((t.status?.name||'').toLowerCase()));
+  if (!tasks.length) { toast('Нет данных для анализа', 'err'); return; }
 
-  btn.disabled = true;
   btn.classList.add('loading');
-  btn.innerHTML = '<span class="spin-icon"></span> Анализирую…';
+  btn.innerHTML = '<span class="spin-sm"></span> Анализирую…';
 
-  const tab = TABS.find(t => t.key === tabKey);
-  let filteredTasks = tasks;
-  if (tabKey === 'kp') {
-    filteredTasks = tasks.filter(t => !KP_HIDDEN_STATUSES.includes((t.status?.name||'').toLowerCase()));
-  }
+  const unassigned = tasks.filter(t => isUnassigned(t));
+  const overdue    = tasks.filter(t => t.endDate && isOverdue(t.endDate));
+  const lines = tasks.map(t => {
+    const a  = assigneeName(t) || 'НЕ НАЗНАЧЕН';
+    const dl = fmtDate(t.endDate) || 'без срока';
+    const ov = t.endDate && isOverdue(t.endDate) ? ' [ПРОСРОЧЕНО]' : '';
+    return `• ${t.name} | ${a} | ${t.status?.name||'?'} | срок: ${dl}${ov}`;
+  }).join('\n');
 
-  const now = new Date();
-  const todayStr = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()}`;
-
-  // Build task list for prompt
-  const unassigned = filteredTasks.filter(t => isUnassigned(t));
-  const overdue    = filteredTasks.filter(t => t.endDate && isOverdue(t.endDate));
-  const taskLines  = filteredTasks.map(t => {
-    const assignee = getAssigneeName(t) || 'НЕ НАЗНАЧЕН';
-    const dl = formatEndDate(t.endDate) || 'без срока';
-    const over = t.endDate && isOverdue(t.endDate) ? ' [ПРОСРОЧЕНО]' : '';
-    return `• ${t.name} | ${assignee} | ${t.status?.name || '?'} | срок: ${dl}${over}`;
-  }).join('
-');
-
-  const systemPrompt = `Ты — операционный ассистент производственной компании Massivburg (мебель премиум-класса, Санкт-Петербург). Анализируешь задачи раздела "${tab.label}" для утреннего оперативного дайджеста технического директора. Отвечай чётко, по-деловому, без воды. Используй эмодзи умеренно.`;
-
-  const userMsg = `Сегодня ${todayStr}. Раздел: ${tab.label}. Всего задач: ${filteredTasks.length}. Без исполнителя: ${unassigned.length}. Просрочено: ${overdue.length}.
+  const sys = `Ты операционный ассистент мебельной компании Massivburg (премиум, СПб). Анализируешь задачи раздела "${tab.label}" для утреннего дайджеста технического директора. Пиши чётко, по-деловому, без воды.`;
+  const usr = `Сегодня ${todayStr()}. Раздел: ${tab.label}. Всего: ${tasks.length}. Без исполнителя: ${unassigned.length}. Просрочено: ${overdue.length}.
 
 Задачи:
-${taskLines}
+${lines}
 
-Дай утренний анализ в 4 блоках — строго в таком формате:
+Дай анализ строго в 4 блоках:
 
 📊 ДАЙДЖЕСТ
-[1–2 предложения: общая картина раздела, главное число и тренд]
+[1-2 предложения: общая картина, главное]
 
 ⚠️ РИСКИ
-[просроченные задачи и задачи без исполнителя — конкретно по именам и срокам, или "рисков нет"]
+[просроченные и без исполнителя — конкретно по именам и срокам, или «рисков нет»]
 
 🎯 ПРИОРИТЕТЫ ДНЯ
-[2–3 конкретных действия на сегодня]
+[2-3 конкретных действия на сегодня]
 
 📨 ДЛЯ TELEGRAM
-[готовый текст для отправки в рабочий чат, 3–5 строк, деловой тон]`;
+[готовый текст для рабочего чата, 3-5 строк]`;
 
   try {
-    const result = await callClaude(systemPrompt, userMsg, 700);
-    // Extract digest (first block) for preview
-    const digestMatch = result.match(/📊 ДАЙДЖЕСТ\s*
-([\s\S]*?)(?=
-[⚠🎯📨]|$)/);
-    const digest = digestMatch ? digestMatch[1].trim() : result.slice(0, 100);
+    const result = await callClaude(sys, usr, 700);
+    const m = result.match(/📊 ДАЙДЖЕСТ\s*\n([\s\S]*?)(?=\n[⚠🎯📨]|$)/);
+    const digest = m ? m[1].trim() : result.slice(0,100);
+    setCachedAi(key, { text: result, digest, day: todayKey(), ts: Date.now() });
 
-    setAiCache(tabKey, { text: result, digest, day: todayKey(), tabLabel: tab.label, ts: Date.now() });
-
-    // Re-render just the AI panel
-    const panelEl = document.querySelector(`#screen-${tabKey} .ai-panel`);
-    if (panelEl) panelEl.innerHTML = buildAiPanelHTML(tabKey);
-
-    showAiReveal(tabKey);
+    // Re-render AI panel
+    const panel = document.querySelector(`#screen-${key} .ai-panel`);
+    if (panel) panel.innerHTML = aiPanelHTML(key);
+    showReveal(key);
   } catch(e) {
-    showToast('Ошибка ИИ: ' + e.message, 'error');
-    btn.disabled = false;
+    toast('Ошибка ИИ: ' + e.message, 'err');
     btn.classList.remove('loading');
     btn.innerHTML = '✦ Сгенерировать анализ ИИ';
   }
 }
 
-/* ─── SHOW AI REVEAL ─────────────────────── */
-function showAiReveal(tabKey) {
-  const cached = getCachedAi(tabKey);
+/* ════════════════════════════════════════════
+   REVEAL MODAL
+════════════════════════════════════════════ */
+function showReveal(key) {
+  const cached = getCachedAi(key);
   if (!cached) return;
-  const tab = TABS.find(t => t.key === tabKey);
+  const tab = TABS.find(t => t.key === key);
+  revealTabKey = key;
 
-  // Format the text with line breaks
-  const formatted = escHtml(cached.text)
+  const formatted = esc(cached.text)
     .replace(/📊 ДАЙДЖЕСТ/g, '<strong>📊 ДАЙДЖЕСТ</strong>')
     .replace(/⚠️ РИСКИ/g, '<strong>⚠️ РИСКИ</strong>')
     .replace(/🎯 ПРИОРИТЕТЫ ДНЯ/g, '<strong>🎯 ПРИОРИТЕТЫ ДНЯ</strong>')
     .replace(/📨 ДЛЯ TELEGRAM/g, '<strong>📨 ДЛЯ TELEGRAM</strong>')
-    .replace(/
-/g, '<br>');
+    .replace(/\n/g, '<br>');
 
-  const now = new Date(cached.ts);
-  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const hm = (() => { const n=new Date(cached.ts); return `${pad(n.getHours())}:${pad(n.getMinutes())}`; })();
 
-  document.getElementById('revealCard').innerHTML = `
+  document.getElementById('reveal-card').innerHTML = `
     <div class="reveal-badge">
       <div class="reveal-dot"></div>
-      <div class="reveal-lbl">ИИ · ${escHtml(tab.label)}</div>
+      <div class="reveal-lbl">ИИ · ${esc(tab.label)}</div>
     </div>
-    <div class="reveal-text" style="font-family:var(--font-ui);font-size:13px;line-height:1.7">${formatted}</div>
-    <div class="reveal-meta">Сгенерировано в ${timeStr} · claude-sonnet-4-6</div>
+    <div class="reveal-body">${formatted}</div>
+    <div class="reveal-meta">Сгенерировано в ${hm} · claude-sonnet-4-6</div>
     <div class="reveal-actions">
-      <button class="reveal-copy-btn" onclick="copyAiResult('${tabKey}',event)">📨 Копировать для Telegram</button>
-      <button class="reveal-close-btn" onclick="dismissReveal()">✕</button>
+      <button class="reveal-copy" id="reveal-copy-btn">📨 Копировать для Telegram</button>
+      <button class="reveal-close" id="reveal-close-btn">✕</button>
     </div>
     <div class="reveal-hint">нажмите вне карточки чтобы закрыть</div>`;
 
-  const w = document.getElementById('revealWrap');
-  w.classList.remove('out');
-  w.classList.add('on');
+  document.getElementById('reveal').classList.add('on');
 }
 
-function copyAiResult(tabKey, e) {
-  e.stopPropagation();
-  const cached = getCachedAi(tabKey);
+function closeReveal() {
+  document.getElementById('reveal').classList.remove('on');
+  revealTabKey = null;
+}
+
+function copyReveal() {
+  if (!revealTabKey) return;
+  const cached = getCachedAi(revealTabKey);
   if (!cached) return;
-  // Extract only the Telegram block
-  const tgMatch = cached.text.match(/📨 ДЛЯ TELEGRAM\s*
-([\s\S]*?)$/);
-  const textToCopy = tgMatch ? tgMatch[1].trim() : cached.text;
-  navigator.clipboard.writeText(textToCopy)
-    .then(() => showToast('📨 Скопировано для Telegram'))
+  const m = cached.text.match(/📨 ДЛЯ TELEGRAM\s*\n([\s\S]*?)$/);
+  copyText(m ? m[1].trim() : cached.text);
+}
+
+/* ════════════════════════════════════════════
+   EXPORT (TELEGRAM)
+════════════════════════════════════════════ */
+function buildExportBlock(key) {
+  const tab = TABS.find(t => t.key === key);
+  let tasks = taskData[key];
+  if (!tasks || !tasks.length) return null;
+  if (key === 'kp') tasks = tasks.filter(t => !KP_HIDE.includes((t.status?.name||'').toLowerCase()));
+  if (!tasks.length) return null;
+
+  const emoji = TAB_EMOJI[key] || '📋';
+  const lines = [`${emoji} *${tab.label.toUpperCase()}* (${tasks.length})`, ''];
+
+  if (tab.grouped) {
+    const unassigned = tasks.filter(t => isUnassigned(t));
+    const assigned   = tasks.filter(t => !isUnassigned(t));
+    if (unassigned.length) {
+      lines.push('⚠️ *Не назначен*');
+      unassigned.sort((a,b) => (a.name||'').localeCompare(b.name||'','ru'))
+        .forEach(t => lines.push(exportLine(t)));
+      lines.push('');
+    }
+    const by = {};
+    assigned.forEach(t => { const n=assigneeName(t)||'—'; (by[n]=by[n]||[]).push(t); });
+    Object.keys(by).sort((a,b)=>a.localeCompare(b,'ru')).forEach(n => {
+      lines.push(`👤 *${n}*`);
+      by[n].sort((a,b)=>(a.name||'').localeCompare(b.name||'','ru')).forEach(t => lines.push(exportLine(t)));
+      lines.push('');
+    });
+  } else {
+    const unassigned = tasks.filter(t => isUnassigned(t));
+    const assigned   = tasks.filter(t => !isUnassigned(t));
+    if (unassigned.length) {
+      lines.push('⚠️ *Не назначен*');
+      unassigned.forEach(t => lines.push(exportLine(t)));
+      lines.push('');
+    }
+    assigned.forEach(t => lines.push(exportLine(t)));
+  }
+  return lines.join('\n').trim();
+}
+
+function exportLine(t) {
+  const dl = fmtDate(t.endDate);
+  const ov = t.endDate && isOverdue(t.endDate);
+  return `  • ${t.name}${t.status?.name ? ' ['+t.status.name+']' : ''}${dl ? ' · '+(ov?'⏰':'📅')+' '+dl : ''}`;
+}
+
+function renderExport() {
+  let text = '';
+  if (exportKey === 'all') {
+    const parts = [`📊 *Massivburg · Дашборд ${todayStr()}*`, ''];
+    TABS.forEach(t => { const b=buildExportBlock(t.key); if(b){parts.push(b);parts.push('');} });
+    text = parts.join('\n').trim();
+  } else {
+    const b = buildExportBlock(exportKey);
+    const tab = TABS.find(t=>t.key===exportKey);
+    text = b ? `📊 *Massivburg · ${tab.label} ${todayStr()}*\n\n${b}` : 'Нет данных';
+  }
+  document.getElementById('export-text').textContent = text;
+}
+
+function openExport() {
+  if (!Object.keys(taskData).length) { toast('Сначала загрузите данные', 'err'); return; }
+  exportKey = 'all';
+  document.querySelectorAll('.etab').forEach((b,i) => b.classList.toggle('on', i===0));
+  renderExport();
+  document.getElementById('export-modal').classList.add('on');
+}
+
+function closeExport() {
+  document.getElementById('export-modal').classList.remove('on');
+}
+
+/* ════════════════════════════════════════════
+   SETUP / SETTINGS
+════════════════════════════════════════════ */
+function showSetup() {
+  document.getElementById('setup').classList.remove('gone');
+}
+function hideSetup() {
+  document.getElementById('setup').classList.add('gone');
+}
+
+function openSettings() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('screen-settings').classList.add('on');
+  document.getElementById('inp-pf-token-s').value = getPFToken();
+  document.getElementById('inp-claude-key').value = getClaudeKey();
+  document.getElementById('s-pf-status').textContent = getPFToken() ? '✓ Задан' : '✗ Нет';
+  document.getElementById('s-cl-status').textContent = getClaudeKey() ? '✓ Задан' : '✗ Нет';
+}
+
+function savePFToken() {
+  const v = document.getElementById('inp-pf-token-s').value.trim();
+  if (!v) { toast('Введите токен', 'err'); return; }
+  LS.set('pf_token', v);
+  toast('✓ Токен сохранён');
+  document.getElementById('s-pf-status').textContent = '✓ Задан';
+  setTimeout(() => { switchTab('eskiz'); refreshAll(); }, 600);
+}
+
+function saveClaudeKey() {
+  const v = document.getElementById('inp-claude-key').value.trim();
+  if (!v) { toast('Введите ключ', 'err'); return; }
+  LS.set('claude_api_key', v);
+  toast('✓ Claude Key сохранён');
+  document.getElementById('s-cl-status').textContent = '✓ Задан';
+}
+
+function resetAll() {
+  if (!confirm('Сбросить токен? Данные не будут доступны.')) return;
+  LS.del('pf_token');
+  taskData = {};
+  switchTab('eskiz');
+  showSetup();
+}
+
+/* ════════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════════ */
+function switchTab(key) {
+  currentTab = key;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById(`screen-${key}`).classList.add('on');
+  document.querySelector(`.tab[data-key="${key}"]`)?.classList.add('on');
+}
+
+/* ════════════════════════════════════════════
+   THEME
+════════════════════════════════════════════ */
+function toggleTheme() {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  LS.set('pf_theme', next);
+}
+
+/* ════════════════════════════════════════════
+   LOADING
+════════════════════════════════════════════ */
+function setLoading(on) {
+  document.getElementById('loadbar').classList.toggle('on', on);
+  document.getElementById('btn-refresh').style.opacity  = on ? '.4' : '';
+  document.getElementById('btn-refresh2').style.opacity = on ? '.4' : '';
+}
+
+/* ════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════ */
+let _toastT;
+function toast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'on' + (type ? ' '+type : '');
+  clearTimeout(_toastT);
+  _toastT = setTimeout(() => el.classList.remove('on'), 2300);
+}
+
+/* ════════════════════════════════════════════
+   COPY
+════════════════════════════════════════════ */
+function copyText(str) {
+  navigator.clipboard.writeText(str)
+    .then(() => toast('Скопировано'))
     .catch(() => {
-      const ta = document.createElement('textarea');
-      ta.value = textToCopy; ta.style.cssText = 'position:fixed;opacity:0';
+      const ta = Object.assign(document.createElement('textarea'),
+        {value: str, style: 'position:fixed;opacity:0'});
       document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      showToast('📨 Скопировано для Telegram');
+      document.execCommand('copy'); ta.remove();
+      toast('Скопировано');
     });
 }
 
-function dismissReveal() {
-  const w = document.getElementById('revealWrap');
-  w.classList.add('out');
-  setTimeout(() => { w.classList.remove('on', 'out'); }, 350);
+/* ════════════════════════════════════════════
+   HTML ESCAPE
+════════════════════════════════════════════ */
+function esc(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-/* ─── POPULATE CLAUDE KEY IN SETTINGS ────── */
-const _origShowSettings = showSettings;
-function showSettings() {
-  _origShowSettings();
-  const inp = document.getElementById('claudeKeyInput');
-  if (inp) inp.value = getClaudeKey();
-}
+/* ════════════════════════════════════════════
+   EVENT DELEGATION  (один слушатель на всё)
+════════════════════════════════════════════ */
+document.addEventListener('click', e => {
+  const el = e.target;
 
-(function registerSW() {
-  if (!('serviceWorker' in navigator)) return;
-  // Не регистрируем SW в iframe-окружениях (Claude artifacts, codepen и т.п.)
-  // На GitHub Pages window === window.top и SW работает штатно
-  try { if (window !== window.top) return; } catch(e) { return; }
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('[SW] registered', reg.scope))
-      .catch(() => {}); // 404 в dev-окружении — молча пропускаем
-  });
-})();
-document.getElementById('setupToken').addEventListener('keydown', e => {
-  if (e.key === 'Enter') saveTokenAndStart();
+  // Tab switch
+  const tabEl = el.closest('.tab[data-key]');
+  if (tabEl) { switchTab(tabEl.dataset.key); return; }
+
+  // Copy card
+  const copyBtn = el.closest('.copy-btn[data-copy]');
+  if (copyBtn) { copyText(decodeEntities(copyBtn.dataset.copy)); return; }
+
+  // AI generate button
+  const aiBtn = el.closest('.ai-btn[data-ai-key]');
+  if (aiBtn && !aiBtn.classList.contains('loading')) {
+    generateAi(aiBtn.dataset.aiKey, aiBtn); return;
+  }
+
+  // AI go to settings
+  if (el.closest('[data-action="go-settings"]')) { openSettings(); return; }
+
+  // AI preview (show cached result)
+  const aiPrev = el.closest('[data-show-reveal]');
+  if (aiPrev) { showReveal(aiPrev.dataset.showReveal); return; }
+
+  // Export tab
+  const etab = el.closest('.etab[data-ekey]');
+  if (etab) {
+    exportKey = etab.dataset.ekey;
+    document.querySelectorAll('.etab').forEach(b => b.classList.remove('on'));
+    etab.classList.add('on');
+    renderExport(); return;
+  }
+
+  // Export close bg
+  if (el.id === 'export-bg') { closeExport(); return; }
+
+  // Reveal close / bg
+  if (el.id === 'reveal-bg' || el.id === 'reveal-close-btn') { closeReveal(); return; }
+  if (el.id === 'reveal-copy-btn') { copyReveal(); return; }
 });
 
-/* ─── INIT ───────────────────────────────── */
-(function init() {
-  // Restore theme
-  const savedTheme = localStorage.getItem('pf_theme');
-  if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+function decodeEntities(s) {
+  return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+          .replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+}
 
-  // Принять токен из URL-параметра ?token=xxx (удобно для тестирования в iframe)
+/* ════════════════════════════════════════════
+   BUTTON WIRING
+════════════════════════════════════════════ */
+document.getElementById('btn-login').addEventListener('click', () => {
+  const v = document.getElementById('inp-pf-token').value.trim();
+  if (!v) { toast('Введите токен', 'err'); return; }
+  LS.set('pf_token', v);
+  hideSetup();
+  refreshAll();
+});
+document.getElementById('inp-pf-token').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btn-login').click();
+});
+
+document.getElementById('btn-refresh').addEventListener('click', refreshAll);
+document.getElementById('btn-refresh2').addEventListener('click', refreshAll);
+document.getElementById('btn-export').addEventListener('click', openExport);
+document.getElementById('btn-theme').addEventListener('click', toggleTheme);
+document.getElementById('btn-settings').addEventListener('click', openSettings);
+document.getElementById('btn-close-export').addEventListener('click', closeExport);
+document.getElementById('btn-copy-export').addEventListener('click', () => {
+  copyText(document.getElementById('export-text').textContent);
+});
+document.getElementById('btn-save-pf').addEventListener('click', savePFToken);
+document.getElementById('btn-save-claude').addEventListener('click', saveClaudeKey);
+document.getElementById('btn-reset').addEventListener('click', resetAll);
+
+/* ════════════════════════════════════════════
+   SERVICE WORKER
+════════════════════════════════════════════ */
+if ('serviceWorker' in navigator) {
+  try {
+    if (window === window.top) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════ */
+(function init() {
+  // Theme
+  const theme = LS.get('pf_theme');
+  if (theme) document.documentElement.setAttribute('data-theme', theme);
+
+  // URL token (для тестирования в iframe)
   try {
     const urlToken = new URLSearchParams(window.location.search).get('token');
-    if (urlToken && urlToken.trim()) {
-      setToken(urlToken.trim());
-      // Убираем токен из URL чтобы не светился в истории
-      const clean = window.location.pathname + window.location.hash;
-      window.history.replaceState(null, '', clean);
+    if (urlToken) {
+      LS.set('pf_token', urlToken.trim());
+      window.history.replaceState(null,'', window.location.pathname);
     }
   } catch(e) {}
 
-  // Show setup if no token
-  if (!getToken()) {
+  // Check token
+  if (!getPFToken()) {
     showSetup();
     return;
   }
 
-  // Initial load
+  // Has token — hide setup and load
+  hideSetup();
   refreshAll();
 })();
 </script>
