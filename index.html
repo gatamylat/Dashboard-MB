@@ -245,6 +245,27 @@
       display: flex; align-items: center; gap: 5px;
     }
 
+    /* Assignee group header */
+    .group-hd {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 2px 5px;
+      border-bottom: 1px solid var(--brd-vis);
+      margin-bottom: 6px;
+    }
+    .group-hd-name {
+      font-family: var(--font-hd);
+      font-size: 15px; font-weight: 500;
+      color: var(--t1); letter-spacing: -.1px;
+    }
+    .group-hd-cnt {
+      font-size: 10px; font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-bg);
+      border-radius: 100px;
+      padding: 2px 8px;
+      letter-spacing: .3px;
+    }
+
     /* ══════════════════════════════════════════
        EMPTY / LOADING / ERROR
     ══════════════════════════════════════════ */
@@ -397,6 +418,125 @@
     .nav-time { color: var(--t1); font-weight: 600; }
 
     /* ══════════════════════════════════════════
+       AI REVEAL (from Рефлекция pattern)
+    ══════════════════════════════════════════ */
+    .reveal-wrap {
+      position: fixed; inset: 0; z-index: 900;
+      display: flex; flex-direction: column;
+      pointer-events: none; opacity: 0;
+      transition: opacity .4s;
+    }
+    .reveal-wrap.on  { opacity: 1; pointer-events: all; }
+    .reveal-wrap.out { opacity: 0; transition: opacity .3s; }
+    .reveal-bg {
+      position: absolute; inset: 0;
+      background: rgba(20,18,10,.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .reveal-card {
+      position: relative;
+      margin: auto 12px;
+      max-height: 88vh; overflow-y: auto;
+      background: var(--surface);
+      border-radius: 20px;
+      padding: 28px 22px 24px;
+      box-shadow: 0 24px 80px rgba(10,8,4,.25);
+      transform: scale(.92) translateY(20px);
+      transition: transform .45s cubic-bezier(.22,1,.36,1);
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .reveal-wrap.on  .reveal-card { transform: scale(1) translateY(0); }
+    .reveal-wrap.out .reveal-card { transform: scale(.95) translateY(10px); transition: transform .3s; }
+
+    .reveal-badge {
+      display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+    }
+    .reveal-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+    .reveal-lbl { font-size: 11px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); }
+
+    .reveal-text {
+      font-family: var(--font-hd);
+      font-size: 16px; line-height: 1.65;
+      color: var(--t1); letter-spacing: -.1px;
+    }
+    .reveal-meta {
+      font-size: 11px; color: var(--t2); line-height: 1.5;
+      padding-top: 10px; border-top: 1px solid var(--brd);
+    }
+    .reveal-hint { font-size: 11px; color: var(--t3); text-align: center; opacity: .7; }
+    .reveal-actions { display: flex; gap: 8px; }
+    .reveal-copy-btn {
+      flex: 1; background: var(--accent); color: #fff;
+      border-radius: 8px; padding: 11px;
+      font-size: 14px; font-weight: 600; font-family: var(--font-ui);
+      transition: opacity 150ms, transform 100ms cubic-bezier(.22,1,.36,1);
+    }
+    .reveal-copy-btn:active { opacity: .85; transform: scale(.97); }
+    .reveal-close-btn {
+      background: var(--brd); color: var(--t2);
+      border-radius: 8px; padding: 11px 16px;
+      font-size: 14px; font-weight: 500; font-family: var(--font-ui);
+      transition: background 120ms;
+    }
+
+    /* AI panel at bottom of each tab */
+    .ai-panel { margin: 14px 0 4px; padding-top: 12px; border-top: 1px solid var(--brd-vis); }
+    .ai-trigger-btn {
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 16px;
+      background: var(--surface); border: 1.5px solid var(--brd-vis);
+      border-radius: 10px;
+      font-size: 13px; font-weight: 600; color: var(--accent);
+      font-family: var(--font-ui);
+      transition: background 120ms, transform 100ms cubic-bezier(.22,1,.36,1);
+    }
+    .ai-trigger-btn:active { transform: scale(.98); background: var(--accent-bg); }
+    .ai-trigger-btn.loading { color: var(--t3); border-color: var(--brd); pointer-events: none; }
+    .ai-cached-row {
+      margin-top: 8px;
+      display: flex; align-items: center; gap: 8px;
+      background: var(--accent-bg);
+      border: 1px solid rgba(26,122,230,.12);
+      border-radius: 8px; padding: 8px 12px;
+      cursor: pointer;
+    }
+    .ai-cached-row:active { opacity: .8; }
+    .ai-cached-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    .ai-cached-preview {
+      font-size: 11px; color: var(--t2); flex: 1; line-height: 1.4;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    .ai-cached-arr { font-size: 13px; color: var(--t3); }
+
+    @keyframes spin-anim { to { transform: rotate(360deg); } }
+    .spin-icon {
+      display: inline-block; width: 13px; height: 13px;
+      border: 2px solid rgba(26,122,230,.2); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin-anim .65s linear infinite; vertical-align: middle;
+    }
+
+    /* ══════════════════════════════════════════
+       EXPORT TAB BUTTONS
+    ══════════════════════════════════════════ */
+    .exp-tab-btn {
+      flex-shrink: 0;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px; font-weight: 500;
+      color: var(--t2);
+      background: var(--brd);
+      border: none; cursor: pointer;
+      font-family: var(--font-ui);
+      transition: background 120ms, color 120ms;
+    }
+    .exp-tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ══════════════════════════════════════════
        TOAST
     ══════════════════════════════════════════ */
     .toast {
@@ -511,6 +651,9 @@
       <button class="icon-btn" onclick="toggleTheme()" title="Тема" id="themeBtn">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
+      <button class="icon-btn" onclick="showExportModal()" title="Выгрузка для Telegram" id="exportBtn">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
       <button class="icon-btn" onclick="showSettings()" title="Настройки">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
@@ -564,8 +707,19 @@
           placeholder="Вставьте токен">
         <div class="form-hint">Управление аккаунтом → Доступ к API → REST API → Создать токен</div>
       </div>
-      <button class="btn-primary" onclick="saveToken()">Сохранить токен</button>
+      <button class="btn-primary" onclick="saveToken()">Сохранить токен Planfix</button>
       <button class="btn-danger-outline" onclick="clearToken()">Сбросить и выйти</button>
+
+      <div class="divider"></div>
+
+      <div class="form-block">
+        <label class="form-label" for="claudeKeyInput">Claude API Key</label>
+        <input class="form-input" id="claudeKeyInput" type="password"
+          autocomplete="off" autocorrect="off" spellcheck="false"
+          placeholder="sk-ant-api03-...">
+        <div class="form-hint">platform.anthropic.com → API Keys. Уходит только на api.anthropic.com, хранится локально.</div>
+      </div>
+      <button class="btn-primary" onclick="saveClaudeKey()">Сохранить Claude Key</button>
 
       <div class="divider"></div>
 
@@ -602,6 +756,41 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<!-- AI Reveal overlay -->
+<div class="reveal-wrap" id="revealWrap" onclick="dismissReveal()">
+  <div class="reveal-bg"></div>
+  <div class="reveal-card" id="revealCard"></div>
+</div>
+
+<!-- Export modal -->
+<div class="modal-overlay" id="exportOverlay" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(20,18,10,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)closeExport()">
+  <div style="background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-height:88vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;">
+      <div style="font-family:var(--font-hd);font-size:18px;font-weight:500;letter-spacing:-.2px;">Выгрузка для Telegram</div>
+      <button class="icon-btn" onclick="closeExport()">
+        <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <!-- Tab selector -->
+    <div style="display:flex;gap:4px;padding:0 16px 12px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;">
+      <button class="exp-tab-btn active" onclick="selectExportTab('all',this)">Все</button>
+      <button class="exp-tab-btn" onclick="selectExportTab('eskiz',this)">Эскизы</button>
+      <button class="exp-tab-btn" onclick="selectExportTab('rd',this)">РД</button>
+      <button class="exp-tab-btn" onclick="selectExportTab('kp',this)">КП</button>
+      <button class="exp-tab-btn" onclick="selectExportTab('stolyar',this)">Столяры</button>
+      <button class="exp-tab-btn" onclick="selectExportTab('sebes',this)">Себестоимость</button>
+      <button class="exp-tab-btn" onclick="selectExportTab('vykrasy',this)">Выкрасы</button>
+    </div>
+    <!-- Preview -->
+    <div style="flex:1;overflow-y:auto;padding:0 16px;-webkit-overflow-scrolling:touch;">
+      <div id="exportPreview" style="font-family:monospace;font-size:12px;line-height:1.7;color:var(--t1);white-space:pre-wrap;word-break:break-word;background:var(--bg);border-radius:8px;padding:12px 14px;min-height:120px;"></div>
+    </div>
+    <div style="padding:12px 16px calc(12px + var(--safe-bot));display:flex;gap:8px;">
+      <button class="btn-primary" style="flex:1" onclick="copyExport()">Копировать</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════════════════════════════════
      JAVASCRIPT
 ══════════════════════════════════════════ -->
@@ -615,13 +804,16 @@ const STATUS_EXCLUDE = [3, 181, 134, 118, 7, 0];
 const DUMMY_USER = 'user:81';
 
 const TABS = [
-  { key: 'eskiz',   label: 'Эскиз',          template: 1422 },
-  { key: 'rd',      label: 'РД',              template: 1423 },
-  { key: 'kp',      label: 'КП',              template: 1340 },
-  { key: 'stolyar', label: 'Столяр',          template: 4965 },
-  { key: 'sebes',   label: 'Себестоимость',   template: 63742 },
-  { key: 'vykrasy', label: 'Выкрас',          template: 3774 },
+  { key: 'eskiz',   label: 'Эскиз',          template: 1422,  groupByAssignee: true  },
+  { key: 'rd',      label: 'РД',             template: 1423,  groupByAssignee: true  },
+  { key: 'kp',      label: 'КП',             template: 1340,  groupByAssignee: false },
+  { key: 'stolyar', label: 'Столяр',         template: 4965,  groupByAssignee: true  },
+  { key: 'sebes',   label: 'Себестоимость',  template: 63742, groupByAssignee: false },
+  { key: 'vykrasy', label: 'Выкрас',         template: 3774,  groupByAssignee: false },
 ];
+
+// КП: скрываем задачи со статусом "Заключен договор" (фильтруем по названию статуса)
+const KP_HIDDEN_STATUSES = ['заключен договор'];
 
 /* ─── STATE ──────────────────────────────── */
 let currentTab = 'eskiz';
@@ -639,12 +831,18 @@ function setToken(t) {
 /* ─── DATE UTILS ─────────────────────────── */
 // endDate format from API: "DD-MM-YYYY HH:MM" — never use new Date()
 function parseEndDate(str) {
-  if (!str) return null;
-  // "18-06-2026 00:00" → { d, m, y }
-  const [datePart] = str.split(' ');
+  if (!str || typeof str !== 'string') return null;
+  const trimmed = str.trim();
+  if (!trimmed) return null;
+  const [datePart] = trimmed.split(' ');
   const parts = datePart.split('-');
   if (parts.length < 3) return null;
-  return { d: parts[0], m: parts[1], y: parts[2] };
+  const d = parts[0], m = parts[1], y = parts[2];
+  // Guard against "00-00-0000" or missing year
+  if (!y || y === '0000' || y.length < 4) return null;
+  if (!m || m === '00') return null;
+  if (!d || d === '00') return null;
+  return { d, m, y };
 }
 function formatEndDate(str) {
   const p = parseEndDate(str);
@@ -732,21 +930,6 @@ async function refreshAll() {
       }
     });
 
-    // Check if any tab errored — try offline fallback for those
-    const anySuccess = results.some(r => r.status === 'fulfilled');
-
-    if (!anySuccess) {
-      // Full network failure — load from cache
-      const cached = loadFromCache();
-      if (cached) {
-        taskData = cached.data;
-        TABS.forEach(t => renderTab(t.key));
-        showOfflineBanner(cached.ts);
-        showToast('Офлайн · показаны кэшированные данные', 'error');
-        return;
-      }
-    }
-
     // Render all tabs
     TABS.forEach(t => renderTab(t.key));
 
@@ -783,9 +966,9 @@ function pad(n) { return String(n).padStart(2,'0'); }
 /* ─── RENDER ─────────────────────────────── */
 function renderTab(key) {
   const tab   = TABS.find(t => t.key === key);
-  const tasks = taskData[key];
   const el    = document.getElementById(`screen-${key}`);
   const cnt   = document.getElementById(`cnt-${key}`);
+  let tasks   = taskData[key];
 
   if (tasks === null) {
     cnt.textContent = '!';
@@ -806,29 +989,68 @@ function renderTab(key) {
     return;
   }
 
-  cnt.textContent = tasks.length;
+  // КП: скрываем "Заключен договор"
+  if (key === 'kp') {
+    tasks = tasks.filter(t => {
+      const sname = (t.status?.name || '').toLowerCase();
+      return !KP_HIDDEN_STATUSES.includes(sname);
+    });
+  }
 
-  // Split: normal vs unassigned
-  const unassigned = tasks.filter(t => isUnassigned(t));
-  const assigned   = tasks.filter(t => !isUnassigned(t));
+  cnt.textContent = tasks.length;
 
   let html = `<div style="padding-top:4px">`;
 
-  if (unassigned.length > 0) {
-    html += `<div class="unassigned-hd">
-      ⚠️ Не назначен · ${unassigned.length}
-    </div>`;
-    unassigned.forEach(t => { html += taskCardHTML(t, tab.label); });
-  }
+  if (tab.groupByAssignee) {
+    // ── Группировка по исполнителю, сортировка А→Я ──
+    const unassigned = tasks.filter(t => isUnassigned(t));
+    const assigned   = tasks.filter(t => !isUnassigned(t));
 
-  if (assigned.length > 0) {
+    // Показываем незаконченные сначала
     if (unassigned.length > 0) {
-      html += `<div style="height:8px"></div>
-               <div class="section-meta" style="padding:4px 2px 6px;font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;">В работе · ${assigned.length}</div>`;
+      html += `<div class="unassigned-hd">⚠️ Не назначен · ${unassigned.length}</div>`;
+      // Сортируем внутри группы А→Я по названию
+      unassigned.sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ru'));
+      unassigned.forEach(t => { html += taskCardHTML(t, tab.label); });
+      html += `<div style="height:8px"></div>`;
+    }
+
+    // Группируем назначенных по имени исполнителя, сортировка А→Я
+    const byAssignee = {};
+    assigned.forEach(t => {
+      const name = getAssigneeName(t) || '—';
+      if (!byAssignee[name]) byAssignee[name] = [];
+      byAssignee[name].push(t);
+    });
+
+    const sortedNames = Object.keys(byAssignee).sort((a,b) => a.localeCompare(b, 'ru'));
+    sortedNames.forEach(assigneeName => {
+      const group = byAssignee[assigneeName];
+      // Сортируем задачи А→Я внутри группы
+      group.sort((a,b) => (a.name||'').localeCompare(b.name||'', 'ru'));
+      html += `<div class="group-hd">
+        <span class="group-hd-name">${escHtml(assigneeName)}</span>
+        <span class="group-hd-cnt">${group.length}</span>
+      </div>`;
+      group.forEach(t => { html += taskCardHTML(t, tab.label); });
+      html += `<div style="height:6px"></div>`;
+    });
+
+  } else {
+    // ── Обычный вид: сначала без исполнителя ──
+    const unassigned = tasks.filter(t => isUnassigned(t));
+    const assigned   = tasks.filter(t => !isUnassigned(t));
+
+    if (unassigned.length > 0) {
+      html += `<div class="unassigned-hd">⚠️ Не назначен · ${unassigned.length}</div>`;
+      unassigned.forEach(t => { html += taskCardHTML(t, tab.label); });
+      html += `<div style="height:8px"></div>`;
     }
     assigned.forEach(t => { html += taskCardHTML(t, tab.label); });
   }
 
+  // AI panel at bottom
+  html += `<div class="ai-panel">${buildAiPanelHTML(key)}</div>`;
   html += `</div>`;
   el.innerHTML = html;
 }
@@ -1057,17 +1279,20 @@ function loadFromCache() {
 
 function showOfflineBanner(ts) {
   const ago = ts ? formatCacheAge(ts) : '';
-  const banner = document.createElement('div');
-  banner.id = 'offlineBanner';
-  banner.style.cssText = `
-    position: fixed; top: var(--safe-top); left: 0; right: 0; z-index: 600;
-    background: var(--warn); color: #fff;
-    font-size: 11px; font-weight: 600;
-    text-align: center; padding: 6px 16px;
-    letter-spacing: .3px;
-  `;
-  banner.textContent = `Офлайн · данные ${ago}`;
-  document.body.prepend(banner);
+  let banner = document.getElementById('offlineBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'offlineBanner';
+    banner.style.cssText = [
+      'position:fixed', 'top:var(--safe-top)', 'left:0', 'right:0', 'z-index:600',
+      'background:var(--warn)', 'color:#fff',
+      'font-size:11px', 'font-weight:600',
+      'text-align:center', 'padding:6px 16px',
+      'letter-spacing:.3px'
+    ].join(';');
+    document.body.prepend(banner);
+  }
+  banner.textContent = 'Офлайн · данные ' + ago;
 }
 
 function hideOfflineBanner() {
@@ -1084,14 +1309,380 @@ function formatCacheAge(ts) {
 }
 
 /* ─── SERVICE WORKER REGISTRATION ───────── */
-(function registerSW() {
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('[SW] registered', reg.scope))
-        .catch(err => console.warn('[SW] failed', err));
-    });
+/* ─── TELEGRAM EXPORT ───────────────────── */
+let exportTabKey = 'all';
+
+function showExportModal() {
+  if (!Object.keys(taskData).length) {
+    showToast('Сначала загрузите данные', 'error'); return;
   }
+  exportTabKey = 'all';
+  // Reset tab buttons
+  document.querySelectorAll('.exp-tab-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+  renderExportPreview();
+  const ov = document.getElementById('exportOverlay');
+  ov.style.display = 'flex';
+  requestAnimationFrame(() => ov.style.opacity = '1');
+}
+
+function closeExport() {
+  document.getElementById('exportOverlay').style.display = 'none';
+}
+
+function selectExportTab(key, btn) {
+  exportTabKey = key;
+  document.querySelectorAll('.exp-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderExportPreview();
+}
+
+function buildExportText(key) {
+  const tab = TABS.find(t => t.key === key);
+  let tasks = taskData[key];
+  if (!tasks || tasks.length === 0) return null;
+
+  // Apply same КП filter
+  if (key === 'kp') {
+    tasks = tasks.filter(t => !KP_HIDDEN_STATUSES.includes((t.status?.name||'').toLowerCase()));
+  }
+  if (tasks.length === 0) return null;
+
+  const lines = [];
+  const emoji = { eskiz:'✏️', rd:'📐', kp:'💼', stolyar:'🪚', sebes:'💰', vykrasy:'🎨' };
+  lines.push(`${emoji[key]||'📋'} *${tab.label.toUpperCase()}* (${tasks.length})`);
+  lines.push('');
+
+  if (tab.groupByAssignee) {
+    // Группировка по исполнителю
+    const unassigned = tasks.filter(t => isUnassigned(t));
+    const assigned   = tasks.filter(t => !isUnassigned(t));
+
+    if (unassigned.length > 0) {
+      lines.push('⚠️ *Не назначен*');
+      unassigned
+        .sort((a,b) => (a.name||'').localeCompare(b.name||'','ru'))
+        .forEach(t => lines.push(taskLine(t)));
+      lines.push('');
+    }
+
+    const byAssignee = {};
+    assigned.forEach(t => {
+      const n = getAssigneeName(t) || '—';
+      if (!byAssignee[n]) byAssignee[n] = [];
+      byAssignee[n].push(t);
+    });
+
+    Object.keys(byAssignee).sort((a,b) => a.localeCompare(b,'ru')).forEach(name => {
+      lines.push(`👤 *${name}*`);
+      byAssignee[name]
+        .sort((a,b) => (a.name||'').localeCompare(b.name||'','ru'))
+        .forEach(t => lines.push(taskLine(t)));
+      lines.push('');
+    });
+  } else {
+    const unassigned = tasks.filter(t => isUnassigned(t));
+    const assigned   = tasks.filter(t => !isUnassigned(t));
+    if (unassigned.length > 0) {
+      lines.push('⚠️ *Не назначен*');
+      unassigned.forEach(t => lines.push(taskLine(t)));
+      lines.push('');
+    }
+    assigned.forEach(t => lines.push(taskLine(t)));
+  }
+
+  return lines.join('\n').trim();
+}
+
+function taskLine(task) {
+  const name     = (task.name || '—').trim();
+  const deadline = formatEndDate(task.endDate);
+  const over     = task.endDate ? isOverdue(task.endDate) : false;
+  const dl       = deadline ? ` · ${over?'⏰':'📅'} ${deadline}` : '';
+  const st       = task.status?.name ? ` [${task.status.name}]` : '';
+  return `  • ${name}${st}${dl}`;
+}
+
+function renderExportPreview() {
+  let text = '';
+  const now = new Date();
+  const dateStr = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()}`;
+
+  if (exportTabKey === 'all') {
+    const parts = [];
+    const header = `📊 *Massivburg · Дашборд ${dateStr}*`;
+    parts.push(header);
+    parts.push('');
+    TABS.forEach(t => {
+      const block = buildExportText(t.key);
+      if (block) { parts.push(block); parts.push(''); }
+    });
+    text = parts.join('\n').trim();
+  } else {
+    const block = buildExportText(exportTabKey);
+    const dateHdr = `📊 *Massivburg · ${TABS.find(t=>t.key===exportTabKey)?.label} ${dateStr}*\n`;
+    text = block ? dateHdr + '\n' + block : 'Нет данных';
+  }
+
+  document.getElementById('exportPreview').textContent = text;
+}
+
+function copyExport() {
+  const text = document.getElementById('exportPreview').textContent;
+  if (!text) return;
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('Скопировано для Telegram'))
+    .catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('Скопировано для Telegram');
+    });
+}
+
+/* ─── CLAUDE API ─────────────────────────── */
+function getClaudeKey() {
+  return localStorage.getItem('claude_api_key') || '';
+}
+function saveClaudeKey() {
+  const val = document.getElementById('claudeKeyInput').value.trim();
+  if (!val) { showToast('Введите API ключ', 'error'); return; }
+  localStorage.setItem('claude_api_key', val);
+  showToast('✓ Claude Key сохранён');
+}
+
+async function callClaude(systemPrompt, userMsg, maxTokens = 600) {
+  const key = getClaudeKey();
+  if (!key) throw new Error('Claude API Key не задан. Откройте ⚙ настройки.');
+  const body = {
+    model: 'claude-sonnet-4-6',
+    max_tokens: maxTokens,
+    messages: [{ role: 'user', content: userMsg }]
+  };
+  if (systemPrompt) body.system = systemPrompt;
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify(body)
+  });
+  const raw = await r.text();
+  console.log('[Claude]', r.status, raw.slice(0, 200));
+  if (!r.ok) {
+    let m = 'HTTP ' + r.status;
+    try { m = JSON.parse(raw)?.error?.message || m; } catch(_) {}
+    throw new Error(m);
+  }
+  return JSON.parse(raw).content[0].text.trim();
+}
+
+/* ─── AI CACHE ───────────────────────────── */
+// Кэш: { [tabKey]: { text, digest, ts } }
+const AI_CACHE_KEY = 'pf_ai_cache';
+
+function getAiCache() {
+  try { return JSON.parse(localStorage.getItem(AI_CACHE_KEY) || '{}'); } catch(e) { return {}; }
+}
+function setAiCache(key, entry) {
+  const cache = getAiCache();
+  cache[key] = entry;
+  try { localStorage.setItem(AI_CACHE_KEY, JSON.stringify(cache)); } catch(e) {}
+}
+function getCachedAi(key) {
+  const c = getAiCache()[key];
+  if (!c) return null;
+  // Кэш живёт до конца текущего дня
+  const today = new Date();
+  const d = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+  if (c.day !== d) return null;
+  return c;
+}
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+/* ─── AI PANEL HTML ──────────────────────── */
+function buildAiPanelHTML(tabKey) {
+  const cached = getCachedAi(tabKey);
+  const hasKey = !!getClaudeKey();
+  if (!hasKey) {
+    return `<button class="ai-trigger-btn" onclick="showSettings()" style="color:var(--t2)">
+      🔑 Добавить Claude API Key для анализа
+    </button>`;
+  }
+  let btn = `<button class="ai-trigger-btn" id="ai-btn-${tabKey}" onclick="generateAi('${tabKey}', this)">
+    ✦ Сгенерировать анализ ИИ
+  </button>`;
+  if (cached) {
+    btn = `<button class="ai-trigger-btn" id="ai-btn-${tabKey}" onclick="generateAi('${tabKey}', this)">
+      ↻ Обновить анализ
+    </button>
+    <div class="ai-cached-row" onclick="showAiReveal('${tabKey}')">
+      <div class="ai-cached-dot"></div>
+      <div class="ai-cached-preview">${escHtml(cached.digest || cached.text.slice(0, 80))}</div>
+      <div class="ai-cached-arr">›</div>
+    </div>`;
+  }
+  return btn;
+}
+
+/* ─── GENERATE AI ANALYSIS ───────────────── */
+async function generateAi(tabKey, btn) {
+  const tasks = taskData[tabKey];
+  if (!tasks || tasks.length === 0) { showToast('Нет данных для анализа', 'error'); return; }
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.innerHTML = '<span class="spin-icon"></span> Анализирую…';
+
+  const tab = TABS.find(t => t.key === tabKey);
+  let filteredTasks = tasks;
+  if (tabKey === 'kp') {
+    filteredTasks = tasks.filter(t => !KP_HIDDEN_STATUSES.includes((t.status?.name||'').toLowerCase()));
+  }
+
+  const now = new Date();
+  const todayStr = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()}`;
+
+  // Build task list for prompt
+  const unassigned = filteredTasks.filter(t => isUnassigned(t));
+  const overdue    = filteredTasks.filter(t => t.endDate && isOverdue(t.endDate));
+  const taskLines  = filteredTasks.map(t => {
+    const assignee = getAssigneeName(t) || 'НЕ НАЗНАЧЕН';
+    const dl = formatEndDate(t.endDate) || 'без срока';
+    const over = t.endDate && isOverdue(t.endDate) ? ' [ПРОСРОЧЕНО]' : '';
+    return `• ${t.name} | ${assignee} | ${t.status?.name || '?'} | срок: ${dl}${over}`;
+  }).join('
+');
+
+  const systemPrompt = `Ты — операционный ассистент производственной компании Massivburg (мебель премиум-класса, Санкт-Петербург). Анализируешь задачи раздела "${tab.label}" для утреннего оперативного дайджеста технического директора. Отвечай чётко, по-деловому, без воды. Используй эмодзи умеренно.`;
+
+  const userMsg = `Сегодня ${todayStr}. Раздел: ${tab.label}. Всего задач: ${filteredTasks.length}. Без исполнителя: ${unassigned.length}. Просрочено: ${overdue.length}.
+
+Задачи:
+${taskLines}
+
+Дай утренний анализ в 4 блоках — строго в таком формате:
+
+📊 ДАЙДЖЕСТ
+[1–2 предложения: общая картина раздела, главное число и тренд]
+
+⚠️ РИСКИ
+[просроченные задачи и задачи без исполнителя — конкретно по именам и срокам, или "рисков нет"]
+
+🎯 ПРИОРИТЕТЫ ДНЯ
+[2–3 конкретных действия на сегодня]
+
+📨 ДЛЯ TELEGRAM
+[готовый текст для отправки в рабочий чат, 3–5 строк, деловой тон]`;
+
+  try {
+    const result = await callClaude(systemPrompt, userMsg, 700);
+    // Extract digest (first block) for preview
+    const digestMatch = result.match(/📊 ДАЙДЖЕСТ\s*
+([\s\S]*?)(?=
+[⚠🎯📨]|$)/);
+    const digest = digestMatch ? digestMatch[1].trim() : result.slice(0, 100);
+
+    setAiCache(tabKey, { text: result, digest, day: todayKey(), tabLabel: tab.label, ts: Date.now() });
+
+    // Re-render just the AI panel
+    const panelEl = document.querySelector(`#screen-${tabKey} .ai-panel`);
+    if (panelEl) panelEl.innerHTML = buildAiPanelHTML(tabKey);
+
+    showAiReveal(tabKey);
+  } catch(e) {
+    showToast('Ошибка ИИ: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.innerHTML = '✦ Сгенерировать анализ ИИ';
+  }
+}
+
+/* ─── SHOW AI REVEAL ─────────────────────── */
+function showAiReveal(tabKey) {
+  const cached = getCachedAi(tabKey);
+  if (!cached) return;
+  const tab = TABS.find(t => t.key === tabKey);
+
+  // Format the text with line breaks
+  const formatted = escHtml(cached.text)
+    .replace(/📊 ДАЙДЖЕСТ/g, '<strong>📊 ДАЙДЖЕСТ</strong>')
+    .replace(/⚠️ РИСКИ/g, '<strong>⚠️ РИСКИ</strong>')
+    .replace(/🎯 ПРИОРИТЕТЫ ДНЯ/g, '<strong>🎯 ПРИОРИТЕТЫ ДНЯ</strong>')
+    .replace(/📨 ДЛЯ TELEGRAM/g, '<strong>📨 ДЛЯ TELEGRAM</strong>')
+    .replace(/
+/g, '<br>');
+
+  const now = new Date(cached.ts);
+  const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  document.getElementById('revealCard').innerHTML = `
+    <div class="reveal-badge">
+      <div class="reveal-dot"></div>
+      <div class="reveal-lbl">ИИ · ${escHtml(tab.label)}</div>
+    </div>
+    <div class="reveal-text" style="font-family:var(--font-ui);font-size:13px;line-height:1.7">${formatted}</div>
+    <div class="reveal-meta">Сгенерировано в ${timeStr} · claude-sonnet-4-6</div>
+    <div class="reveal-actions">
+      <button class="reveal-copy-btn" onclick="copyAiResult('${tabKey}',event)">📨 Копировать для Telegram</button>
+      <button class="reveal-close-btn" onclick="dismissReveal()">✕</button>
+    </div>
+    <div class="reveal-hint">нажмите вне карточки чтобы закрыть</div>`;
+
+  const w = document.getElementById('revealWrap');
+  w.classList.remove('out');
+  w.classList.add('on');
+}
+
+function copyAiResult(tabKey, e) {
+  e.stopPropagation();
+  const cached = getCachedAi(tabKey);
+  if (!cached) return;
+  // Extract only the Telegram block
+  const tgMatch = cached.text.match(/📨 ДЛЯ TELEGRAM\s*
+([\s\S]*?)$/);
+  const textToCopy = tgMatch ? tgMatch[1].trim() : cached.text;
+  navigator.clipboard.writeText(textToCopy)
+    .then(() => showToast('📨 Скопировано для Telegram'))
+    .catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = textToCopy; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('📨 Скопировано для Telegram');
+    });
+}
+
+function dismissReveal() {
+  const w = document.getElementById('revealWrap');
+  w.classList.add('out');
+  setTimeout(() => { w.classList.remove('on', 'out'); }, 350);
+}
+
+/* ─── POPULATE CLAUDE KEY IN SETTINGS ────── */
+const _origShowSettings = showSettings;
+function showSettings() {
+  _origShowSettings();
+  const inp = document.getElementById('claudeKeyInput');
+  if (inp) inp.value = getClaudeKey();
+}
+
+(function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  // Не регистрируем SW в iframe-окружениях (Claude artifacts, codepen и т.п.)
+  // На GitHub Pages window === window.top и SW работает штатно
+  try { if (window !== window.top) return; } catch(e) { return; }
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('[SW] registered', reg.scope))
+      .catch(() => {}); // 404 в dev-окружении — молча пропускаем
+  });
 })();
 document.getElementById('setupToken').addEventListener('keydown', e => {
   if (e.key === 'Enter') saveTokenAndStart();
@@ -1102,6 +1693,17 @@ document.getElementById('setupToken').addEventListener('keydown', e => {
   // Restore theme
   const savedTheme = localStorage.getItem('pf_theme');
   if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+  // Принять токен из URL-параметра ?token=xxx (удобно для тестирования в iframe)
+  try {
+    const urlToken = new URLSearchParams(window.location.search).get('token');
+    if (urlToken && urlToken.trim()) {
+      setToken(urlToken.trim());
+      // Убираем токен из URL чтобы не светился в истории
+      const clean = window.location.pathname + window.location.hash;
+      window.history.replaceState(null, '', clean);
+    }
+  } catch(e) {}
 
   // Show setup if no token
   if (!getToken()) {
