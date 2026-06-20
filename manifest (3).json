@@ -1,0 +1,12 @@
+{
+  "name": "Massivburg Dashboard",
+  "short_name": "MB Dash",
+  "description": "Оперативный дашборд задач Massivburg · Planfix + Claude AI",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF9F5",
+  "theme_color": "#FAF9F5",
+  "lang": "ru-RU",
+  "categories": ["productivity", "business"]
+}
