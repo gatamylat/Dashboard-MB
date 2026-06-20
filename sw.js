@@ -1,56 +1,66 @@
-// ╔══════════════════════════════════════════════════════════╗
-// ║  Service Worker · Massivburg Dashboard v2               ║
-// ║  Стратегия: Cache-first для оболочки,                   ║
-// ║             Network-only для Planfix API и Claude API   ║
-// ╚══════════════════════════════════════════════════════════╝
+// ════════════════════════════════════════════════════════════
+//  Service Worker · Massivburg Dashboard
+//  
+//  ВАЖНО ПРИ ОБНОВЛЕНИИ:
+//  Меняй CACHE_VERSION при каждом деплое — старый кэш
+//  автоматически сбросится у всех пользователей.
+//  Формат: ‘mb-dash-YYYYMMDDHHММ’
+// ════════════════════════════════════════════════════════════
 
-const CACHE_NAME = ‘mb-dash-v2’;
+const CACHE_VERSION = ‘mb-dash-202606201326’;  // ← менять при каждом деплое
 
-const SHELL_FILES = [
+const SHELL = [
 ‘./’,
 ‘./index.html’,
 ‘./manifest.json’,
 ];
 
-// ── INSTALL ──────────────────────────────────────────────────
+// ── INSTALL: кэшируем оболочку ────────────────────────────
 self.addEventListener(‘install’, event => {
+console.log(’[SW] install’, CACHE_VERSION);
 event.waitUntil(
-caches.open(CACHE_NAME)
-.then(cache => cache.addAll(SHELL_FILES))
-.then(() => self.skipWaiting())
+caches.open(CACHE_VERSION)
+.then(cache => cache.addAll(SHELL))
+.then(() => self.skipWaiting())  // активируемся немедленно
 );
 });
 
-// ── ACTIVATE ─────────────────────────────────────────────────
+// ── ACTIVATE: удаляем ВСЕ старые кэши ────────────────────
 self.addEventListener(‘activate’, event => {
+console.log(’[SW] activate’, CACHE_VERSION);
 event.waitUntil(
 caches.keys()
-.then(names => Promise.all(
-names
-.filter(n => n !== CACHE_NAME)
-.map(n => caches.delete(n))
+.then(keys => Promise.all(
+keys
+.filter(k => k !== CACHE_VERSION)  // всё кроме текущего — удалить
+.map(k => {
+console.log(’[SW] delete old cache:’, k);
+return caches.delete(k);
+})
 ))
-.then(() => self.clients.claim())
+.then(() => self.clients.claim())  // берём контроль над всеми вкладками
 );
 });
 
-// ── FETCH ─────────────────────────────────────────────────────
+// ── FETCH: стратегии по типу запроса ─────────────────────
 self.addEventListener(‘fetch’, event => {
 const url = event.request.url;
 
-// ① Planfix API и Claude API — всегда сеть, никогда кэш
+// ① API запросы — НИКОГДА не кэшировать
 if (url.includes(‘planfix.ru/rest’) || url.includes(‘api.anthropic.com’)) {
-return;
+return; // браузер сам делает fetch
 }
 
-// ② Google Fonts — cache-first
+// ② Google Fonts — cache-first (шрифты стабильны)
 if (url.includes(‘fonts.googleapis.com’) || url.includes(‘fonts.gstatic.com’)) {
 event.respondWith(
 caches.match(event.request).then(cached => {
 if (cached) return cached;
 return fetch(event.request).then(res => {
+if (res && res.status === 200) {
 const clone = res.clone();
-caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+caches.open(CACHE_VERSION).then(c => c.put(event.request, clone));
+}
 return res;
 });
 })
@@ -58,23 +68,24 @@ return res;
 return;
 }
 
-// ③ Оболочка приложения — cache-first, фоновое обновление
+// ③ Оболочка приложения — network-first с fallback на кэш
+//    Network-first гарантирует что новый index.html загрузится сразу после деплоя
 if (event.request.method !== ‘GET’) return;
 
 event.respondWith(
-caches.match(event.request).then(cached => {
-const networkFetch = fetch(event.request).then(res => {
+fetch(event.request)
+.then(res => {
+// Успешный сетевой ответ — обновляем кэш
 if (res && res.status === 200) {
 const clone = res.clone();
-caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+caches.open(CACHE_VERSION).then(c => c.put(event.request, clone));
 }
 return res;
-}).catch(() => null);
-
-```
-  return cached || networkFetch || caches.match('./index.html');
 })
-```
-
+.catch(() => {
+// Офлайн — отдаём из кэша
+return caches.match(event.request)
+.then(cached => cached || caches.match(’./index.html’));
+})
 );
 });
