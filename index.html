@@ -13,14 +13,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
 <style>
-/* ── VARS ── */
+/* ══ SURF DESIGN SYSTEM VARS ══ */
 :root {
   --bg:#FAF9F5; --surf:#FFFFFF; --t1:#1C1C1E; --t2:#8A8985; --t3:#C4C3BE;
   --acc:#1A7AE6; --acc-bg:rgba(26,122,230,.06);
   --ok:#2EBD52; --err:#E8453A; --warn:#E89A0A;
-  --brd:rgba(40,35,20,.07); --brd2:rgba(40,35,20,.12);
-  --sh:0 1px 4px rgba(30,25,10,.05);
-  --sh-md:0 4px 16px rgba(30,25,10,.09);
+  --brd:rgba(40,35,20,.06); --brd2:rgba(40,35,20,.10);
+  --sh:0 1px 4px rgba(30,25,10,.04);
+  --sh-md:0 4px 16px rgba(30,25,10,.08);
+  --sh-lg:0 8px 32px rgba(30,25,10,.10);
   --ui:'DM Sans',-apple-system,sans-serif;
   --hd:'Playfair Display',Georgia,serif;
   --st:env(safe-area-inset-top);
@@ -29,8 +30,9 @@
 html[data-theme=dark] {
   --bg:#1A1A1D; --surf:#2C2C2E; --t1:#F0EFEA; --t2:#9A9A9A; --t3:#5A5A5A;
   --acc:#4A9FF5; --acc-bg:rgba(74,159,245,.08);
-  --brd:rgba(255,255,255,.07); --brd2:rgba(255,255,255,.13);
-  --sh:0 1px 4px rgba(0,0,0,.25); --sh-md:0 4px 16px rgba(0,0,0,.35);
+  --brd:rgba(255,255,255,.06); --brd2:rgba(255,255,255,.12);
+  --sh:0 1px 4px rgba(0,0,0,.2); --sh-md:0 4px 16px rgba(0,0,0,.3);
+  --sh-lg:0 8px 32px rgba(0,0,0,.4);
 }
 
 /* ── RESET ── */
@@ -45,18 +47,21 @@ input{font-family:var(–ui)}
 input,textarea{-webkit-user-select:text;user-select:text}
 ::-webkit-scrollbar{display:none}
 
-/* ── SETUP SCREEN ── */
+/* ══ SETUP SCREEN (Surf) ══ */
 #setup{
 position:fixed;inset:0;z-index:9999;
 background:var(–bg);
 display:flex;flex-direction:column;align-items:center;justify-content:center;
-padding:32px 24px;text-align:center;
+padding:40px 24px;text-align:center;
 }
 #setup.gone{display:none}
-.setup-logo{font-family:var(–hd);font-size:30px;font-weight:500;letter-spacing:-.5px;margin-bottom:6px}
+.setup-logo{font-family:var(–hd);font-size:32px;font-weight:500;
+letter-spacing:-.5px;color:var(–t1);margin-bottom:8px}
 .setup-logo span{color:var(–acc)}
-.setup-sub{font-size:13px;color:var(–t2);margin-bottom:36px;line-height:1.5}
-.setup-box{width:100%;max-width:340px}
+.setup-sub{font-size:14px;color:var(–t2);margin-bottom:40px;line-height:1.6}
+.setup-box{width:100%;max-width:360px;
+background:var(–surf);border-radius:16px;padding:24px;
+border:1px solid var(–brd);box-shadow:var(–sh-md)}
 
 /* ── FORM ── */
 .f-label{display:block;font-size:10px;font-weight:600;color:var(–t2);
@@ -67,41 +72,47 @@ transition:border-color 150ms}
 .f-input:focus{border-color:var(–acc)}
 .f-hint{font-size:11px;color:var(–t2);margin-top:5px;line-height:1.4}
 .f-block{margin-bottom:16px}
-.btn{width:100%;border-radius:8px;padding:13px;font-size:15px;font-weight:600;
+.btn{display:block;width:100%;border-radius:8px;padding:13px;font-size:15px;font-weight:600;
+font-family:var(–ui);text-align:center;
 transition:opacity 150ms,transform 100ms cubic-bezier(.22,1,.36,1)}
+.btn+.btn{margin-top:8px}
 .btn:active{opacity:.88;transform:scale(.98)}
 .btn-primary{background:var(–acc);color:#fff}
-.btn-ghost{background:transparent;color:var(–err);border:1.5px solid var(–err);margin-top:8px}
+.btn-secondary{background:var(–brd2);color:var(–t1)}
+.btn-ghost{background:transparent;color:var(–err);border:1.5px solid var(–err)}
 
-/* ── HEADER ── */
+/* ══ HEADER (Surf) ══ */
 .header{
 position:sticky;top:0;z-index:200;
-background:rgba(250,249,245,.93);
-backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+background:rgba(250,249,245,.94);
+backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 border-bottom:1px solid var(–brd2);
 padding:10px 20px 0;
 }
-html[data-theme=dark] .header{background:rgba(26,26,29,.93)}
+html[data-theme=dark] .header{background:rgba(26,26,29,.94)}
 .header-row{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px}
-.logo{font-family:var(–hd);font-size:20px;font-weight:500;letter-spacing:-.5px}
+.logo{font-family:var(–hd);font-size:20px;font-weight:500;letter-spacing:-.5px;color:var(–t1)}
 .logo span{color:var(–acc)}
 .hdr-btns{display:flex;gap:2px}
 .icon-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;
-justify-content:center;color:var(–t2);transition:background 100ms,transform 100ms}
-.icon-btn:active{background:var(–brd);transform:scale(.9)}
+justify-content:center;color:var(–t2);
+transition:background 100ms cubic-bezier(.22,1,.36,1),transform 100ms cubic-bezier(.34,1.56,.64,1)}
+.icon-btn:active{background:var(–brd);transform:scale(.88)}
 .icon-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;
 stroke-linecap:round;stroke-linejoin:round}
 
-/* ── TABS ── */
+/* ══ TABS (Surf) ══ */
 .tabs{display:flex;gap:4px;overflow-x:auto;overflow-y:hidden;
 scrollbar-width:none;padding-bottom:10px}
+.tabs::-webkit-scrollbar{display:none}
 .tab{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:5px 11px;
 border-radius:6px;font-size:13px;font-weight:500;color:var(–t2);
-background:transparent;white-space:nowrap;
-transition:background 150ms,color 150ms}
-.tab.on{background:var(–surf);color:var(–t1);box-shadow:var(–sh)}
+background:transparent;white-space:nowrap;font-family:var(–ui);
+transition:background 150ms cubic-bezier(.22,1,.36,1),color 150ms,box-shadow 150ms}
+.tab.on{background:var(–surf);color:var(–t1);box-shadow:0 1px 3px rgba(30,25,10,.06)}
 .tab-cnt{font-size:10px;font-weight:600;background:var(–brd2);color:var(–t2);
-border-radius:100px;padding:1px 6px;letter-spacing:.3px;transition:background 150ms,color 150ms}
+border-radius:100px;padding:1px 6px;letter-spacing:.3px;
+transition:background 150ms,color 150ms}
 .tab.on .tab-cnt{background:var(–acc-bg);color:var(–acc)}
 
 /* ── SCREENS ── */
@@ -120,27 +131,28 @@ padding:56px 20px;font-size:13px;font-weight:500;color:var(–t2)}
 border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── TASK CARD ── */
-.card{background:var(–surf);border-radius:12px;padding:11px 14px 11px 20px;
+/* ══ TASK CARD (Surf) ══ */
+.card{background:var(–surf);border-radius:12px;padding:10px 14px 10px 20px;
 margin-bottom:5px;box-shadow:var(–sh);border:1px solid var(–brd);
-position:relative;overflow:hidden;transition:box-shadow 120ms}
-.card:active{box-shadow:none}
-.pbar{position:absolute;left:0;top:0;bottom:0;width:3px}
+position:relative;overflow:hidden;
+transition:box-shadow 120ms cubic-bezier(.22,1,.36,1),transform 80ms}
+.card:active{box-shadow:none;transform:scale(.995)}
+.pbar{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
 .card-name{font-size:15px;font-weight:500;color:var(–t1);line-height:1.35;
 letter-spacing:-.1px;margin-bottom:7px}
 .card-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
 .status-pill{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
-padding:2px 7px;border-radius:100px;display:flex;align-items:center;gap:4px}
+padding:2px 8px;border-radius:100px;display:flex;align-items:center;gap:4px;flex-shrink:0}
 .status-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .assignee{font-size:11px;font-weight:500;color:var(–t2)}
-.assignee.none{color:var(–err)}
-.deadline{font-size:11px;font-weight:500;color:var(–t2);margin-left:auto}
-.deadline.over{color:var(–err)}
-.card-foot{margin-top:8px;display:flex;justify-content:flex-end}
-.copy-btn{font-size:11px;font-weight:600;color:var(–acc);padding:4px 10px;
+.assignee.none{color:var(–err);font-weight:600}
+.deadline{font-size:11px;font-weight:500;color:var(–t2);margin-left:auto;flex-shrink:0}
+.deadline.over{color:var(–err);font-weight:600}
+.card-foot{margin-top:9px;display:flex;justify-content:flex-end}
+.copy-btn{font-size:11px;font-weight:600;color:var(–acc);padding:5px 12px;
 border-radius:6px;background:var(–acc-bg);letter-spacing:.3px;
 transition:background 100ms,transform 100ms cubic-bezier(.34,1.56,.64,1)}
-.copy-btn:active{transform:scale(.92)}
+.copy-btn:active{transform:scale(.9);background:rgba(26,122,230,.12)}
 
 /* ── GROUP HEADERS ── */
 .grp-unassigned{font-size:11px;font-weight:600;color:var(–warn);
@@ -228,14 +240,20 @@ border-radius:8px;padding:12px 14px;min-height:100px}
 .export-foot{padding:12px 16px 16px;display:flex;gap:8px}
 
 /* ── SETTINGS SCREEN ── */
-#screen-settings{padding:24px 16px 20px;max-width:480px}
+#screen-settings{padding:0}
+.settings-wrap{padding:24px 16px 32px;max-width:480px}
 .settings-title{font-family:var(–hd);font-size:22px;font-weight:500;
-letter-spacing:-.3px;margin-bottom:4px}
-.settings-sub{font-size:13px;color:var(–t2);margin-bottom:24px;line-height:1.4}
-.divider{height:1px;background:var(–brd2);margin:20px 0}
-.about-box{background:var(–surf);border-radius:12px;padding:14px 16px;border:1px solid var(–brd)}
+letter-spacing:-.3px;color:var(–t1);margin-bottom:4px}
+.settings-sub{font-size:13px;color:var(–t2);margin-bottom:20px;line-height:1.4}
+.settings-section{background:var(–surf);border-radius:12px;padding:16px;
+border:1px solid var(–brd);box-shadow:var(–sh)}
+.settings-section-label{font-size:10px;font-weight:600;color:var(–t2);
+text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.divider{height:1px;background:var(–brd2);margin:16px 0}
+.about-box{background:var(–surf);border-radius:12px;padding:4px 16px;
+border:1px solid var(–brd);box-shadow:var(–sh)}
 .about-row{display:flex;justify-content:space-between;align-items:center;
-padding:6px 0;font-size:13px}
+padding:10px 0;font-size:13px}
 .about-row:not(:last-child){border-bottom:1px solid var(–brd)}
 .about-k{color:var(–t2)}
 .about-v{font-weight:500}
@@ -341,31 +359,47 @@ text-align:center;padding:6px 16px;letter-spacing:.3px}
   <!-- Settings -->
 
   <div class="screen" id="screen-settings">
-    <div class="settings-title">Настройки</div>
-    <div class="settings-sub">Токены хранятся локально на устройстве</div>
+    <div class="settings-wrap">
+      <div class="settings-title">Настройки</div>
+      <div class="settings-sub">Токены хранятся локально на устройстве</div>
+
+```
+  <div class="settings-section">
+    <div class="settings-section-label">Planfix</div>
     <div class="f-block">
-      <label class="f-label" for="inp-pf-token-s">Планфикс токен</label>
+      <label class="f-label" for="inp-pf-token-s">API Токен</label>
       <input class="f-input" id="inp-pf-token-s" type="text"
-        autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Токен из Planfix">
-      <div class="f-hint">Управление аккаунтом → Доступ к API → REST API</div>
+        autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Вставьте токен из Planfix">
+      <div class="f-hint">Управление аккаунтом → Доступ к API → REST API → Создать токен</div>
     </div>
     <button class="btn btn-primary" id="btn-save-pf">Сохранить токен</button>
     <button class="btn btn-ghost" id="btn-reset">Сбросить и выйти</button>
-    <div class="divider"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="settings-section">
+    <div class="settings-section-label">Claude AI</div>
     <div class="f-block">
-      <label class="f-label" for="inp-claude-key">Claude API Key</label>
+      <label class="f-label" for="inp-claude-key">API Key</label>
       <input class="f-input" id="inp-claude-key" type="password"
         autocomplete="off" autocorrect="off" spellcheck="false" placeholder="sk-ant-api03-...">
-      <div class="f-hint">platform.anthropic.com → API Keys. Уходит только на api.anthropic.com.</div>
+      <div class="f-hint">platform.anthropic.com → API Keys. Ключ уходит только на api.anthropic.com — нигде не хранится на серверах.</div>
     </div>
     <button class="btn btn-primary" id="btn-save-claude">Сохранить Claude Key</button>
-    <div class="divider"></div>
-    <div class="about-box">
-      <div class="about-row"><span class="about-k">Аккаунт</span><span class="about-v">massivburg.planfix.ru</span></div>
-      <div class="about-row"><span class="about-k">Обновлено</span><span class="about-v" id="s-updated">—</span></div>
-      <div class="about-row"><span class="about-k">Токен PF</span><span class="about-v" id="s-pf-status">—</span></div>
-      <div class="about-row"><span class="about-k">Claude Key</span><span class="about-v" id="s-cl-status">—</span></div>
-    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="about-box">
+    <div class="about-row"><span class="about-k">Аккаунт</span><span class="about-v">massivburg.planfix.ru</span></div>
+    <div class="about-row"><span class="about-k">Обновлено</span><span class="about-v" id="s-updated">—</span></div>
+    <div class="about-row"><span class="about-k">Токен PF</span><span class="about-v" id="s-pf-status">—</span></div>
+    <div class="about-row"><span class="about-k">Claude Key</span><span class="about-v" id="s-cl-status">—</span></div>
+  </div>
+</div>
+```
+
   </div>
 </main>
 
