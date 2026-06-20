@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MB Dashboard">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#FAF9F5">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+  <title>Massivburg · Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500&display=swap" rel="stylesheet">
+  <style>
+    /* ══════════════════════════════════════════
+       SURF DESIGN SYSTEM — CSS VARS
+    ══════════════════════════════════════════ */
+    :root {
+      --bg:       #FAF9F5;
+      --surface:  #FFFFFF;
+      --t1:       #1C1C1E;
+      --t2:       #8A8985;
+      --t3:       #C4C3BE;
+      --accent:   #1A7AE6;
+      --accent-bg: rgba(26,122,230,.06);
+      --success:  #2EBD52;
+      --danger:   #E8453A;
+      --warn:     #E89A0A;
+      --brd:      rgba(40,35,20,.06);
+      --brd-vis:  rgba(40,35,20,.10);
+      --shadow:   0 1px 4px rgba(30,25,10,.04);
+      --shadow-md:0 4px 16px rgba(30,25,10,.08);
+      --safe-top: env(safe-area-inset-top);
+      --safe-bot: env(safe-area-inset-bottom);
+      --font-ui: 'DM Sans', -apple-system, sans-serif;
+      --font-hd: 'Playfair Display', Georgia, serif;
+    }
+    html[data-theme="dark"] {
+      --bg:       #1A1A1D;
+      --surface:  #2C2C2E;
+      --t1:       #F0EFEA;
+      --t2:       #9A9A9A;
+      --t3:       #5A5A5A;
+      --accent:   #4A9FF5;
+      --accent-bg: rgba(74,159,245,.08);
+      --brd:      rgba(255,255,255,.06);
+      --brd-vis:  rgba(255,255,255,.12);
+      --shadow:   0 1px 4px rgba(0,0,0,.2);
+      --shadow-md:0 4px 16px rgba(0,0,0,.3);
+    }
+
+    /* ══════════════════════════════════════════
+       RESET + BASE
+    ══════════════════════════════════════════ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--t1);
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding-top: var(--safe-top);
+      padding-bottom: calc(56px + var(--safe-bot));
+      -webkit-overflow-scrolling: touch;
+      overflow-x: hidden;
+      transition: background .3s, color .3s;
+    }
+    button { font-family: var(--font-ui); cursor: pointer; border: none; background: none; }
+    input  { font-family: var(--font-ui); }
+    ::-webkit-scrollbar { display: none; }
+    -webkit-user-select: none;
+    * { -webkit-user-select: none; user-select: none; }
+    input, textarea { -webkit-user-select: text; user-select: text; }
+
+    /* ══════════════════════════════════════════
+       HEADER
+    ══════════════════════════════════════════ */
+    .header {
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(250,249,245,.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--brd-vis);
+      padding: 10px 20px 0;
+    }
+    html[data-theme="dark"] .header { background: rgba(26,26,29,.92); }
+    .header-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 8px;
+    }
+    .header-logo {
+      font-family: var(--font-hd);
+      font-size: 20px; font-weight: 500;
+      letter-spacing: -.5px; color: var(--t1);
+    }
+    .header-logo span { color: var(--accent); }
+    .header-actions { display: flex; gap: 4px; }
+    .icon-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--t2);
+      transition: background 100ms cubic-bezier(.22,1,.36,1), color 100ms;
+    }
+    .icon-btn:active { background: var(--brd); transform: scale(.92); }
+    .icon-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Tabs row */
+    .tabs-wrap {
+      overflow-x: auto; overflow-y: hidden;
+      scrollbar-width: none;
+      display: flex; gap: 4px;
+      padding: 0 0 10px;
+    }
+    .tab-btn {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 13px; font-weight: 500;
+      color: var(--t2);
+      background: transparent;
+      transition: background 150ms cubic-bezier(.22,1,.36,1), color 150ms;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      background: var(--surface);
+      color: var(--t1);
+      box-shadow: var(--shadow);
+    }
+    .tab-count {
+      font-size: 10px; font-weight: 600;
+      background: var(--brd-vis);
+      color: var(--t2);
+      border-radius: 100px;
+      padding: 1px 6px;
+      letter-spacing: .3px;
+    }
+    .tab-btn.active .tab-count {
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    /* ══════════════════════════════════════════
+       MAIN CONTENT
+    ══════════════════════════════════════════ */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .content { padding: 12px 16px 8px; }
+
+    /* Section header */
+    .section-hd {
+      font-family: var(--font-hd);
+      font-size: 22px; font-weight: 500;
+      letter-spacing: -.3px;
+      color: var(--t1);
+      padding: 16px 0 8px 2px;
+    }
+    .section-meta {
+      font-size: 11px; font-weight: 400;
+      color: var(--t2);
+      margin-top: 2px;
+      letter-spacing: .2px;
+    }
+
+    /* Task card */
+    .task-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 11px 14px;
+      margin-bottom: 5px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--brd);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 120ms cubic-bezier(.22,1,.36,1);
+    }
+    .task-card:active { box-shadow: none; }
+    .priority-bar {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px;
+    }
+    .task-inner { padding-left: 8px; }
+    .task-name {
+      font-size: 15px; font-weight: 500;
+      color: var(--t1);
+      line-height: 1.35;
+      letter-spacing: -.1px;
+      margin-bottom: 7px;
+    }
+    .task-meta {
+      display: flex; flex-wrap: wrap;
+      align-items: center; gap: 6px;
+    }
+    .task-status {
+      font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .5px;
+      padding: 2px 7px;
+      border-radius: 100px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .status-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .task-assignee {
+      font-size: 11px; font-weight: 500;
+      color: var(--t2);
+      display: flex; align-items: center; gap: 3px;
+    }
+    .task-assignee.unassigned { color: var(--danger); }
+    .task-deadline {
+      font-size: 11px; font-weight: 500;
+      color: var(--t2);
+      margin-left: auto;
+    }
+    .task-deadline.overdue { color: var(--danger); }
+    .task-actions { margin-top: 8px; display: flex; justify-content: flex-end; }
+    .copy-btn {
+      font-size: 11px; font-weight: 600;
+      color: var(--accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--accent-bg);
+      letter-spacing: .3px;
+      transition: background 100ms, transform 100ms cubic-bezier(.34,1.56,.64,1);
+    }
+    .copy-btn:active { transform: scale(.92); }
+
+    /* Unassigned group */
+    .unassigned-hd {
+      font-size: 11px; font-weight: 600;
+      color: var(--warn);
+      text-transform: uppercase; letter-spacing: .5px;
+      padding: 10px 2px 5px;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    /* ══════════════════════════════════════════
+       EMPTY / LOADING / ERROR
+    ══════════════════════════════════════════ */
+    .state-box {
+      text-align: center;
+      padding: 56px 20px;
+    }
+    .state-icon {
+      font-size: 40px; margin-bottom: 14px;
+      display: block;
+    }
+    .state-title {
+      font-family: var(--font-hd);
+      font-size: 18px; font-weight: 500;
+      color: var(--t1); margin-bottom: 6px;
+    }
+    .state-text {
+      font-size: 14px; color: var(--t2);
+      line-height: 1.5;
+    }
+    .state-error { color: var(--danger); }
+
+    /* Spinner */
+    .spinner-wrap {
+      display: flex; align-items: center; justify-content: center;
+      padding: 56px 20px; gap: 10px;
+      color: var(--t2);
+      font-size: 13px; font-weight: 500;
+    }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--brd-vis);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ══════════════════════════════════════════
+       SETTINGS SCREEN
+    ══════════════════════════════════════════ */
+    .settings-screen {
+      padding: 24px 16px 20px;
+      max-width: 480px; margin: 0 auto;
+    }
+    .settings-hd {
+      font-family: var(--font-hd);
+      font-size: 22px; font-weight: 500;
+      letter-spacing: -.3px;
+      margin-bottom: 4px;
+    }
+    .settings-sub {
+      font-size: 13px; color: var(--t2);
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+    .form-block { margin-bottom: 20px; }
+    .form-label {
+      display: block;
+      font-size: 10px; font-weight: 600;
+      color: var(--t2);
+      text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1.5px solid var(--brd-vis);
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 14px;
+      color: var(--t1);
+      outline: none;
+      transition: border-color 150ms;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .form-hint {
+      font-size: 11px; color: var(--t2);
+      margin-top: 5px; line-height: 1.4;
+    }
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 8px;
+      padding: 13px;
+      font-size: 15px; font-weight: 600;
+      transition: opacity 150ms, transform 100ms cubic-bezier(.22,1,.36,1);
+    }
+    .btn-primary:active { opacity: .88; transform: scale(.98); }
+    .btn-danger-outline {
+      width: 100%;
+      background: transparent;
+      color: var(--danger);
+      border: 1.5px solid var(--danger);
+      border-radius: 8px;
+      padding: 11px;
+      font-size: 14px; font-weight: 500;
+      margin-top: 8px;
+      transition: opacity 150ms;
+    }
+    .btn-danger-outline:active { opacity: .7; }
+
+    /* Divider */
+    .divider {
+      height: 1px; background: var(--brd-vis);
+      margin: 24px 0;
+    }
+
+    /* About block in settings */
+    .about-block {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--brd);
+    }
+    .about-row {
+      display: flex; justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+    .about-row:not(:last-child) { border-bottom: 1px solid var(--brd); }
+    .about-key { color: var(--t2); }
+    .about-val { font-weight: 500; }
+
+    /* ══════════════════════════════════════════
+       BOTTOM NAV
+    ══════════════════════════════════════════ */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      z-index: 300;
+      background: rgba(250,249,245,.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(40,35,20,.08);
+      display: flex;
+      padding: 8px 20px calc(8px + var(--safe-bot));
+      gap: 4px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    html[data-theme="dark"] .bottom-nav { background: rgba(26,26,29,.95); }
+    .nav-info {
+      flex: 1;
+      font-size: 11px; color: var(--t2);
+      font-weight: 500;
+    }
+    .nav-time { color: var(--t1); font-weight: 600; }
+
+    /* ══════════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════════ */
+    .toast {
+      position: fixed;
+      bottom: calc(64px + var(--safe-bot));
+      left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--t1); color: var(--bg);
+      padding: 9px 18px;
+      border-radius: 100px;
+      font-size: 12px; font-weight: 500;
+      white-space: nowrap;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 8px 20px rgba(30,25,10,.12);
+      transition: opacity 200ms cubic-bezier(.22,1,.36,1),
+                  transform 200ms cubic-bezier(.22,1,.36,1);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast.success { background: var(--success); }
+    .toast.error   { background: var(--danger); }
+
+    /* ══════════════════════════════════════════
+       TOKEN SETUP OVERLAY (first run)
+    ══════════════════════════════════════════ */
+    .setup-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 32px 24px;
+      text-align: center;
+      transition: opacity 300ms;
+    }
+    .setup-overlay.hidden { opacity: 0; pointer-events: none; }
+    .setup-logo {
+      font-family: var(--font-hd);
+      font-size: 28px; font-weight: 500;
+      color: var(--t1); margin-bottom: 6px;
+    }
+    .setup-logo span { color: var(--accent); }
+    .setup-tagline {
+      font-size: 13px; color: var(--t2);
+      margin-bottom: 36px; line-height: 1.5;
+    }
+    .setup-form { width: 100%; max-width: 360px; }
+    .setup-form .form-input {
+      font-family: monospace;
+      font-size: 13px;
+      letter-spacing: .5px;
+    }
+
+    /* ══════════════════════════════════════════
+       REFRESH INDICATOR (top bar pulse)
+    ══════════════════════════════════════════ */
+    .loading-bar {
+      position: fixed; top: var(--safe-top); left: 0; right: 0; z-index: 500;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent) 0%, rgba(26,122,230,.2) 100%);
+      transform-origin: left;
+      transform: scaleX(0);
+      transition: transform .4s cubic-bezier(.22,1,.36,1), opacity .2s;
+      opacity: 0;
+    }
+    .loading-bar.active {
+      opacity: 1;
+      animation: loadbar 1.4s cubic-bezier(.22,1,.36,1) infinite;
+    }
+    @keyframes loadbar {
+      0%  { transform: scaleX(0); opacity: 1; }
+      60% { transform: scaleX(.85); opacity: 1; }
+      100%{ transform: scaleX(1);  opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading bar -->
+<div class="loading-bar" id="loadingBar"></div>
+
+<!-- ══════════════════════════════════════════
+     TOKEN SETUP OVERLAY
+══════════════════════════════════════════ -->
+<div class="setup-overlay" id="setupOverlay">
+  <div class="setup-logo">Massiv<span>burg</span></div>
+  <div class="setup-tagline">Оперативный дашборд · Planfix<br>Введите токен для доступа к данным</div>
+  <div class="setup-form">
+    <div class="form-block">
+      <label class="form-label" for="setupToken">API Токен</label>
+      <input class="form-input" id="setupToken" type="text"
+        placeholder="Вставьте токен из Planfix"
+        autocomplete="off" autocorrect="off" spellcheck="false">
+      <div class="form-hint">Управление аккаунтом → Доступ к API → REST API</div>
+    </div>
+    <button class="btn-primary" onclick="saveTokenAndStart()">Войти</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-top">
+    <div class="header-logo">Massiv<span>burg</span></div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="refreshAll()" title="Обновить" id="refreshBtn">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      </button>
+      <button class="icon-btn" onclick="toggleTheme()" title="Тема" id="themeBtn">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <button class="icon-btn" onclick="showSettings()" title="Настройки">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tabs-wrap" id="tabsWrap">
+    <button class="tab-btn active" data-tab="eskiz" onclick="switchTab('eskiz', this)">
+      Эскизы <span class="tab-count" id="cnt-eskiz">—</span>
+    </button>
+    <button class="tab-btn" data-tab="rd" onclick="switchTab('rd', this)">
+      РД <span class="tab-count" id="cnt-rd">—</span>
+    </button>
+    <button class="tab-btn" data-tab="kp" onclick="switchTab('kp', this)">
+      КП <span class="tab-count" id="cnt-kp">—</span>
+    </button>
+    <button class="tab-btn" data-tab="stolyar" onclick="switchTab('stolyar', this)">
+      Столяры <span class="tab-count" id="cnt-stolyar">—</span>
+    </button>
+    <button class="tab-btn" data-tab="sebes" onclick="switchTab('sebes', this)">
+      Себестоимость <span class="tab-count" id="cnt-sebes">—</span>
+    </button>
+    <button class="tab-btn" data-tab="vykrasy" onclick="switchTab('vykrasy', this)">
+      Выкрасы <span class="tab-count" id="cnt-vykrasy">—</span>
+    </button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     TASK SCREENS
+══════════════════════════════════════════ -->
+<main>
+  <div class="screen active content" id="screen-eskiz"></div>
+  <div class="screen content" id="screen-rd"></div>
+  <div class="screen content" id="screen-kp"></div>
+  <div class="screen content" id="screen-stolyar"></div>
+  <div class="screen content" id="screen-sebes"></div>
+  <div class="screen content" id="screen-vykrasy"></div>
+
+  <!-- Settings screen -->
+  <div class="screen" id="screen-settings">
+    <div class="settings-screen">
+      <div class="settings-hd">Настройки</div>
+      <div class="settings-sub">API-токен Planfix сохраняется локально на устройстве</div>
+
+      <div class="form-block">
+        <label class="form-label" for="tokenInput">API Токен</label>
+        <input class="form-input" id="tokenInput" type="text"
+          autocomplete="off" autocorrect="off" spellcheck="false"
+          placeholder="Вставьте токен">
+        <div class="form-hint">Управление аккаунтом → Доступ к API → REST API → Создать токен</div>
+      </div>
+      <button class="btn-primary" onclick="saveToken()">Сохранить токен</button>
+      <button class="btn-danger-outline" onclick="clearToken()">Сбросить и выйти</button>
+
+      <div class="divider"></div>
+
+      <div class="about-block">
+        <div class="about-row">
+          <span class="about-key">Аккаунт</span>
+          <span class="about-val">massivburg.planfix.ru</span>
+        </div>
+        <div class="about-row">
+          <span class="about-key">Последнее обновление</span>
+          <span class="about-val" id="lastUpdateInfo">—</span>
+        </div>
+        <div class="about-row">
+          <span class="about-key">Статус токена</span>
+          <span class="about-val" id="tokenStatus">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══════════════════════════════════════════
+     BOTTOM NAV
+══════════════════════════════════════════ */
+<nav class="bottom-nav">
+  <div class="nav-info">
+    Обновлено: <span class="nav-time" id="lastUpdate">—</span>
+  </div>
+  <button class="icon-btn" onclick="refreshAll()" title="Обновить">
+    <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+  </button>
+</nav>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ─── CONFIG ─────────────────────────────── */
+const BASE_URL = 'https://massivburg.planfix.ru/rest';
+const STATUS_EXCLUDE = [3, 181, 134, 118, 7, 0];
+// user:81 = системный «Проектировщик не назначен»
+const DUMMY_USER = 'user:81';
+
+const TABS = [
+  { key: 'eskiz',   label: 'Эскиз',          template: 1422 },
+  { key: 'rd',      label: 'РД',              template: 1423 },
+  { key: 'kp',      label: 'КП',              template: 1340 },
+  { key: 'stolyar', label: 'Столяр',          template: 4965 },
+  { key: 'sebes',   label: 'Себестоимость',   template: 63742 },
+  { key: 'vykrasy', label: 'Выкрас',          template: 3774 },
+];
+
+/* ─── STATE ──────────────────────────────── */
+let currentTab = 'eskiz';
+let taskData   = {};   // { eskiz: [], rd: [], ... }
+let isLoading  = false;
+
+/* ─── TOKEN ──────────────────────────────── */
+function getToken() {
+  return localStorage.getItem('pf_token') || '';
+}
+function setToken(t) {
+  localStorage.setItem('pf_token', t.trim());
+}
+
+/* ─── DATE UTILS ─────────────────────────── */
+// endDate format from API: "DD-MM-YYYY HH:MM" — never use new Date()
+function parseEndDate(str) {
+  if (!str) return null;
+  // "18-06-2026 00:00" → { d, m, y }
+  const [datePart] = str.split(' ');
+  const parts = datePart.split('-');
+  if (parts.length < 3) return null;
+  return { d: parts[0], m: parts[1], y: parts[2] };
+}
+function formatEndDate(str) {
+  const p = parseEndDate(str);
+  if (!p) return null;
+  return `${p.d}-${p.m}-${p.y}`;
+}
+function isOverdue(str) {
+  const p = parseEndDate(str);
+  if (!p) return false;
+  const now = new Date();
+  const nd = now.getDate(), nm = now.getMonth()+1, ny = now.getFullYear();
+  const ty = parseInt(p.y,10), tm = parseInt(p.m,10), td = parseInt(p.d,10);
+  if (ty < ny) return true;
+  if (ty === ny && tm < nm) return true;
+  if (ty === ny && tm === nm && td < nd) return true;
+  return false;
+}
+
+/* ─── API ────────────────────────────────── */
+async function fetchTasks(templateId, offset = 0) {
+  const token = getToken();
+  const res = await fetch(`${BASE_URL}/task/list`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type':  'application/json'
+    },
+    body: JSON.stringify({
+      fields:   'id,name,status,assignees,endDate',
+      pageSize: 100,
+      offset,
+      filters: [
+        { type: 51, operator: 'equal',    value: templateId },
+        { type: 10, operator: 'notequal', value: STATUS_EXCLUDE }
+      ]
+    })
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.result !== 'success') throw new Error(data.error || 'Ошибка API');
+  return data.tasks || [];
+}
+
+async function getAllTasks(templateId) {
+  let offset = 0, all = [];
+  while (true) {
+    const batch = await fetchTasks(templateId, offset);
+    all = all.concat(batch);
+    if (batch.length < 100) break;
+    offset += 100;
+    // Planfix: 1 rps limit — throttle
+    await new Promise(r => setTimeout(r, 400));
+  }
+  return all;
+}
+
+/* ─── REFRESH ────────────────────────────── */
+async function refreshAll() {
+  if (isLoading) return;
+  const token = getToken();
+  if (!token) { showSetup(); return; }
+
+  isLoading = true;
+  setLoading(true);
+
+  // Show spinners in all tabs
+  TABS.forEach(t => {
+    document.getElementById(`screen-${t.key}`).innerHTML = spinnerHTML(`Загружаю ${t.label}…`);
+    document.getElementById(`cnt-${t.key}`).textContent = '…';
+  });
+
+  try {
+    // Parallel fetch — all 6 tab types
+    const results = await Promise.allSettled(
+      TABS.map(t => getAllTasks(t.template))
+    );
+
+    results.forEach((res, i) => {
+      const t = TABS[i];
+      if (res.status === 'fulfilled') {
+        taskData[t.key] = res.value;
+      } else {
+        taskData[t.key] = null; // error sentinel
+        console.error(`[${t.key}]`, res.reason);
+      }
+    });
+
+    // Check if any tab errored — try offline fallback for those
+    const anySuccess = results.some(r => r.status === 'fulfilled');
+
+    if (!anySuccess) {
+      // Full network failure — load from cache
+      const cached = loadFromCache();
+      if (cached) {
+        taskData = cached.data;
+        TABS.forEach(t => renderTab(t.key));
+        showOfflineBanner(cached.ts);
+        showToast('Офлайн · показаны кэшированные данные', 'error');
+        return;
+      }
+    }
+
+    // Render all tabs
+    TABS.forEach(t => renderTab(t.key));
+
+    // Save to offline cache
+    saveToCache(taskData);
+    hideOfflineBanner();
+
+    // Update last-update time
+    const now = new Date();
+    const hm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    document.getElementById('lastUpdate').textContent = hm;
+    document.getElementById('lastUpdateInfo').textContent = `Сегодня в ${hm}`;
+
+    showToast('✓ Данные обновлены');
+  } catch (e) {
+    // Network error — try cache
+    const cached = loadFromCache();
+    if (cached) {
+      taskData = cached.data;
+      TABS.forEach(t => renderTab(t.key));
+      showOfflineBanner(cached.ts);
+      showToast('Офлайн · показаны кэшированные данные', 'error');
+    } else {
+      showToast(`Ошибка: ${e.message}`, 'error');
+    }
+  } finally {
+    isLoading = false;
+    setLoading(false);
+  }
+}
+
+function pad(n) { return String(n).padStart(2,'0'); }
+
+/* ─── RENDER ─────────────────────────────── */
+function renderTab(key) {
+  const tab   = TABS.find(t => t.key === key);
+  const tasks = taskData[key];
+  const el    = document.getElementById(`screen-${key}`);
+  const cnt   = document.getElementById(`cnt-${key}`);
+
+  if (tasks === null) {
+    cnt.textContent = '!';
+    el.innerHTML = `<div class="state-box">
+      <span class="state-icon">⚠️</span>
+      <div class="state-title">Не удалось загрузить</div>
+      <div class="state-text state-error">Проверьте токен или соединение</div>
+    </div>`;
+    return;
+  }
+  if (!tasks || tasks.length === 0) {
+    cnt.textContent = '0';
+    el.innerHTML = `<div class="state-box">
+      <span class="state-icon">✓</span>
+      <div class="state-title">Задач нет</div>
+      <div class="state-text">Все активные задачи выполнены</div>
+    </div>`;
+    return;
+  }
+
+  cnt.textContent = tasks.length;
+
+  // Split: normal vs unassigned
+  const unassigned = tasks.filter(t => isUnassigned(t));
+  const assigned   = tasks.filter(t => !isUnassigned(t));
+
+  let html = `<div style="padding-top:4px">`;
+
+  if (unassigned.length > 0) {
+    html += `<div class="unassigned-hd">
+      ⚠️ Не назначен · ${unassigned.length}
+    </div>`;
+    unassigned.forEach(t => { html += taskCardHTML(t, tab.label); });
+  }
+
+  if (assigned.length > 0) {
+    if (unassigned.length > 0) {
+      html += `<div style="height:8px"></div>
+               <div class="section-meta" style="padding:4px 2px 6px;font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;">В работе · ${assigned.length}</div>`;
+    }
+    assigned.forEach(t => { html += taskCardHTML(t, tab.label); });
+  }
+
+  html += `</div>`;
+  el.innerHTML = html;
+}
+
+function isUnassigned(task) {
+  const users = task.assignees?.users || [];
+  if (users.length === 0) return true;
+  if (users.length === 1 && users[0].id === DUMMY_USER) return true;
+  return false;
+}
+
+function getAssigneeName(task) {
+  const users = task.assignees?.users || [];
+  if (users.length === 0) return null;
+  if (users.length === 1 && users[0].id === DUMMY_USER) return null;
+  return users[0].name;
+}
+
+function taskCardHTML(task, tabLabel) {
+  const name      = escHtml(task.name || '—');
+  const statusObj = task.status || {};
+  const color     = statusObj.color || '#8A8985';
+  const statusName= escHtml(statusObj.name || '');
+  const assignee  = getAssigneeName(task);
+  const unassigned= !assignee;
+  const deadline  = formatEndDate(task.endDate);
+  const overdue   = task.endDate ? isOverdue(task.endDate) : false;
+
+  // Priority bar color from status color (reuse status color for accent bar)
+  const barColor  = color;
+
+  // Copy text builder
+  const copyText  = buildCopyText(tabLabel, task.name, assignee, deadline);
+
+  return `<div class="task-card">
+    <div class="priority-bar" style="background:${barColor}"></div>
+    <div class="task-inner">
+      <div class="task-name">${name}</div>
+      <div class="task-meta">
+        <div class="task-status" style="background:${colorAlpha(color,.1)};color:${color}">
+          <span class="status-dot" style="background:${color}"></span>
+          ${statusName}
+        </div>
+        <div class="task-assignee${unassigned?' unassigned':''}">
+          ${unassigned
+            ? '⚠️ Не назначен'
+            : '👤 ' + escHtml(assignee)
+          }
+        </div>
+        ${deadline
+          ? `<div class="task-deadline${overdue?' overdue':''}">
+              ${overdue?'⏰ ':'📅 '}${deadline}
+             </div>`
+          : `<div class="task-deadline" style="color:var(--t3)">Без срока</div>`
+        }
+      </div>
+      <div class="task-actions">
+        <button class="copy-btn" onclick="copyTask(event,'${escAttr(copyText)}')">Копировать</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildCopyText(tabLabel, taskName, assignee, deadline) {
+  const name  = (taskName || '').trim();
+  const exec  = assignee || 'Не назначен';
+  const dl    = deadline ? `до ${deadline}` : 'без срока';
+  return `${tabLabel} ${name} · ${exec} · ${dl}`;
+}
+
+function colorAlpha(hex, a) {
+  // hex like #3377C3 → rgba
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  if (isNaN(r)) return `rgba(138,137,133,${a})`;
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function spinnerHTML(msg) {
+  return `<div class="spinner-wrap"><div class="spinner"></div>${escHtml(msg)}</div>`;
+}
+
+/* ─── TAB SWITCH ─────────────────────────── */
+function switchTab(key, btn) {
+  if (currentTab === key) return;
+
+  // Hide old screen
+  document.getElementById(`screen-${currentTab}`).classList.remove('active');
+  // Show new screen
+  document.getElementById(`screen-${key}`).classList.add('active');
+
+  // Update tab buttons
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  currentTab = key;
+}
+
+/* ─── SETTINGS ───────────────────────────── */
+function showSettings() {
+  // Deactivate current task screen
+  document.getElementById(`screen-${currentTab}`).classList.remove('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  document.getElementById('screen-settings').classList.add('active');
+
+  // Populate token field
+  document.getElementById('tokenInput').value = getToken();
+  document.getElementById('tokenStatus').textContent = getToken() ? '✓ Задан' : '✗ Не задан';
+}
+
+function backToTasks() {
+  document.getElementById('screen-settings').classList.remove('active');
+  const btn = document.querySelector(`[data-tab="${currentTab}"]`);
+  document.getElementById(`screen-${currentTab}`).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+function saveToken() {
+  const val = document.getElementById('tokenInput').value.trim();
+  if (!val) { showToast('Введите токен', 'error'); return; }
+  setToken(val);
+  showToast('✓ Токен сохранён');
+  document.getElementById('tokenStatus').textContent = '✓ Задан';
+  setTimeout(() => {
+    backToTasks();
+    refreshAll();
+  }, 700);
+}
+
+function clearToken() {
+  if (!confirm('Сбросить токен? Данные не будут доступны до его повторного ввода.')) return;
+  localStorage.removeItem('pf_token');
+  taskData = {};
+  showSetup();
+}
+
+/* ─── SETUP OVERLAY ──────────────────────── */
+function showSetup() {
+  document.getElementById('setupOverlay').classList.remove('hidden');
+}
+function hideSetup() {
+  document.getElementById('setupOverlay').classList.add('hidden');
+}
+
+function saveTokenAndStart() {
+  const val = document.getElementById('setupToken').value.trim();
+  if (!val) { showToast('Введите токен', 'error'); return; }
+  setToken(val);
+  hideSetup();
+  refreshAll();
+}
+
+/* ─── COPY ───────────────────────────────── */
+function copyTask(e, text) {
+  e.stopPropagation();
+  const decoded = text.replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+  navigator.clipboard.writeText(decoded)
+    .then(() => showToast('Скопировано'))
+    .catch(() => {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = decoded; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('Скопировано');
+    });
+}
+
+/* ─── TOAST ──────────────────────────────── */
+let _toastTimer;
+function showToast(msg, type = 'default') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (type !== 'default' ? ` ${type}` : '');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { el.classList.remove('show'); }, 2200);
+}
+
+/* ─── THEME ──────────────────────────────── */
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('pf_theme', next);
+}
+
+/* ─── LOADING BAR ────────────────────────── */
+function setLoading(on) {
+  document.getElementById('loadingBar').classList.toggle('active', on);
+  document.getElementById('refreshBtn').style.opacity = on ? '.4' : '';
+}
+
+/* ─── HTML ESCAPE ────────────────────────── */
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+function escAttr(s) {
+  return escHtml(s);
+}
+
+/* ─── OFFLINE CACHE (localStorage) ──────── */
+// Сохраняем последние данные чтобы показать их офлайн
+const CACHE_KEY = 'pf_last_data';
+
+function saveToCache(data) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      data,
+      ts: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function loadFromCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+function showOfflineBanner(ts) {
+  const ago = ts ? formatCacheAge(ts) : '';
+  const banner = document.createElement('div');
+  banner.id = 'offlineBanner';
+  banner.style.cssText = `
+    position: fixed; top: var(--safe-top); left: 0; right: 0; z-index: 600;
+    background: var(--warn); color: #fff;
+    font-size: 11px; font-weight: 600;
+    text-align: center; padding: 6px 16px;
+    letter-spacing: .3px;
+  `;
+  banner.textContent = `Офлайн · данные ${ago}`;
+  document.body.prepend(banner);
+}
+
+function hideOfflineBanner() {
+  const b = document.getElementById('offlineBanner');
+  if (b) b.remove();
+}
+
+function formatCacheAge(ts) {
+  const diff = Math.floor((Date.now() - ts) / 60000);
+  if (diff < 1)  return 'только что';
+  if (diff < 60) return `${diff} мин назад`;
+  const h = Math.floor(diff / 60);
+  return `${h} ч назад`;
+}
+
+/* ─── SERVICE WORKER REGISTRATION ───────── */
+(function registerSW() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('[SW] registered', reg.scope))
+        .catch(err => console.warn('[SW] failed', err));
+    });
+  }
+})();
+document.getElementById('setupToken').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveTokenAndStart();
+});
+
+/* ─── INIT ───────────────────────────────── */
+(function init() {
+  // Restore theme
+  const savedTheme = localStorage.getItem('pf_theme');
+  if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+
+  // Show setup if no token
+  if (!getToken()) {
+    showSetup();
+    return;
+  }
+
+  // Initial load
+  refreshAll();
+})();
+</script>
+</body>
+</html>
