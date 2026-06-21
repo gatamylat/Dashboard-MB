@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202606212310">
+<meta name="build-version" content="202606212320">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
@@ -514,6 +514,7 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
         <div class="about-box">
           <div class="about-row"><span class="about-k">Аккаунт</span><span class="about-v">massivburg.planfix.ru</span></div>
           <div class="about-row"><span class="about-k">Обновлено</span><span class="about-v" id="s-updated">—</span></div>
+          <div class="about-row"><span class="about-k">Версия</span><span class="about-v" id="s-version">—</span></div>
         </div>
       </div>
     </div>
@@ -1553,6 +1554,8 @@ function openSettings() {
   clEl.textContent = clOk ? '✓ задан' : '✗ нет';
   pfEl.style.color = pfOk ? 'var(--ok)' : 'var(--t3)';
   clEl.style.color = clOk ? 'var(--ok)' : 'var(--t3)';
+  document.getElementById('s-version').textContent =
+    document.querySelector('meta[name="build-version"]')?.content || '—';
   renderSettingsModes();
 }
 
