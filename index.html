@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202606212300">
+<meta name="build-version" content="202606212310">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
@@ -1045,6 +1045,11 @@ function renderSvodka() {
 
   html += '</div>';
   el.innerHTML = html;
+  // Панель ИИ сверху — как на остальных вкладках
+  const aiBlock = document.createElement('div');
+  aiBlock.className = 'ai-panel';
+  aiBlock.innerHTML = aiPanelHTML('svodka');
+  el.prepend(aiBlock);
 }
 
 /* ════════════════════════════════════════════
@@ -1339,11 +1344,25 @@ function aiPanelHTML(key) {
 /* ════════════════════════════════════════════
    GENERATE AI
 ════════════════════════════════════════════ */
+/* Метаданные раздела (включая виртуальную «Сводку») */
+function tabMeta(key) {
+  if (key === 'svodka') return { key:'svodka', label:'Эскиз + РД' };
+  return TABS.find(t => t.key === key) || { key, label: key };
+}
+
 async function generateAi(key, btn) {
-  const tab = TABS.find(t => t.key === key);
-  let tasks = taskData[key] || [];
-  if (key === 'kp') tasks = tasks.filter(t => !KP_HIDE.includes((t.status?.name||'').toLowerCase()));
-  if (key === 'vykrasy') tasks = tasks.filter(t => !VYKRASY_HIDE.includes((t.status?.name||'').toLowerCase()));
+  const tab = tabMeta(key);
+  let tasks;
+  if (key === 'svodka') {
+    tasks = [].concat(
+      Array.isArray(taskData['eskiz']) ? taskData['eskiz'].map(t => ({ ...t, _stage:'Эскиз' })) : [],
+      Array.isArray(taskData['rd'])    ? taskData['rd'].map(t => ({ ...t, _stage:'РД' }))    : []
+    );
+  } else {
+    tasks = taskData[key] || [];
+    if (key === 'kp')      tasks = tasks.filter(t => !KP_HIDE.includes((t.status?.name||'').toLowerCase()));
+    if (key === 'vykrasy') tasks = tasks.filter(t => !VYKRASY_HIDE.includes((t.status?.name||'').toLowerCase()));
+  }
   if (!tasks.length) { toast('Нет данных для анализа', 'err'); return; }
 
   btn.classList.add('loading');
@@ -1352,10 +1371,11 @@ async function generateAi(key, btn) {
   const unassigned = tasks.filter(t => isUnassigned(t));
   const overdue    = tasks.filter(t => t.endDate && isOverdue(t.endDate));
   const lines = tasks.map(t => {
-    const a  = assigneeName(t) || 'НЕ НАЗНАЧЕН';
-    const dl = fmtDate(t.endDate) || 'без срока';
-    const ov = t.endDate && isOverdue(t.endDate) ? ' [ПРОСРОЧЕНО]' : '';
-    return `• ${t.name} | ${a} | ${t.status?.name||'?'} | срок: ${dl}${ov}`;
+    const a   = assigneeName(t) || 'НЕ НАЗНАЧЕН';
+    const dl  = fmtDate(t.endDate) || 'без срока';
+    const ov  = t.endDate && isOverdue(t.endDate) ? ' [ПРОСРОЧЕНО]' : '';
+    const stg = t._stage ? `[${t._stage}] ` : '';
+    return `• ${stg}${t.name} | ${a} | ${t.status?.name||'?'} | срок: ${dl}${ov}`;
   }).join('\n');
 
   const mode = getActiveMode();
@@ -1393,7 +1413,7 @@ ${mode.prompt}`;
 function showReveal(key) {
   const cached = getCachedAi(key + '_' + activeMode);
   if (!cached) return;
-  const tab = TABS.find(t => t.key === key);
+  const tab = tabMeta(key);
   revealTabKey = key;
 
   const formatted = esc(cached.text)
