@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202606212100">
+<meta name="build-version" content="202606212230">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
@@ -13,9 +13,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="MB Dash">
-<style>
-/* Системные шрифты — без внешних запросов, мгновенно */
-</style>
+<!-- ══ Шрифты Surf · DM Sans + Playfair Display (кэшируются service worker'ом) ══ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap">
 <style>
 /* ══ SURF DESIGN SYSTEM VARS ══ */
 :root {
@@ -26,8 +27,8 @@
   --sh:0 1px 4px rgba(30,25,10,.04);
   --sh-md:0 4px 16px rgba(30,25,10,.08);
   --sh-lg:0 8px 32px rgba(30,25,10,.10);
-  --ui:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;
-  --hd:Georgia,'Times New Roman',serif;
+  --ui:'DM Sans',-apple-system,'SF Pro Text','Helvetica Neue',sans-serif;
+  --hd:'Playfair Display',Georgia,'Times New Roman',serif;
   --st:env(safe-area-inset-top);
   --sb:env(safe-area-inset-bottom);
 }
@@ -83,7 +84,7 @@ input,textarea{-webkit-user-select:text;user-select:text}
   transition:opacity 150ms,transform 100ms cubic-bezier(.22,1,.36,1)}
 .btn+.btn{margin-top:8px}
 .btn:active{opacity:.88;transform:scale(.98)}
-.btn-primary{background:#1A7AE6;color:#fff}
+.btn-primary{background:var(--acc);color:#fff}
 .btn-secondary{background:var(--brd2);color:var(--t1)}
 .btn-ghost{background:transparent;color:var(--err);border:1.5px solid var(--err)}
 
@@ -170,6 +171,16 @@ html[data-theme=dark] .header{background:rgba(26,26,29,.94)}
 
 /* ── AI PANEL ── */
 .ai-panel{margin:4px 0 16px;padding-bottom:14px;border-bottom:1px solid var(--brd2)}
+
+/* Режимы — пилюли */
+.ai-modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ai-mode-pill{display:flex;align-items:center;gap:5px;
+  padding:5px 11px;border-radius:100px;border:1.5px solid transparent;
+  font-size:12px;font-weight:500;cursor:pointer;
+  transition:transform .15s cubic-bezier(.34,1.56,.64,1),opacity .15s,background .15s}
+.ai-mode-pill:active{transform:scale(.9)}
+.ai-mode-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
 .ai-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
   padding:11px 16px;background:var(--surf);border:1.5px solid var(--brd2);
   border-radius:10px;font-size:13px;font-weight:600;color:var(--acc);
@@ -180,13 +191,102 @@ html[data-theme=dark] .header{background:rgba(26,26,29,.94)}
   background:var(--acc-bg);border:1px solid rgba(26,122,230,.12);
   border-radius:8px;padding:9px 12px;cursor:pointer}
 .ai-preview:active{opacity:.8}
-.ai-prev-dot{width:5px;height:5px;border-radius:50%;background:var(--acc);flex-shrink:0}
+.ai-prev-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
 .ai-prev-text{font-size:11px;color:var(--t2);flex:1;line-height:1.4;
   overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .ai-prev-arr{font-size:13px;color:var(--t3)}
 .spin-sm{display:inline-block;width:13px;height:13px;
   border:2px solid rgba(26,122,230,.2);border-top-color:var(--acc);
   border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle}
+
+/* ══ BOTTOM SHEET ══ */
+.sheet-overlay{position:fixed;inset:0;z-index:700;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  pointer-events:none;opacity:0;transition:opacity .3s}
+.sheet-overlay.on{opacity:1;pointer-events:all}
+.sheet-bg{position:absolute;inset:0;background:rgba(20,18,10,.22);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.sheet{position:relative;background:var(--surf);border-radius:16px 16px 0 0;
+  width:100%;max-height:88vh;display:flex;flex-direction:column;
+  padding-bottom:var(--sb)}
+.sheet-handle{width:36px;height:4px;background:var(--brd2);border-radius:2px;
+  margin:10px auto 0;flex-shrink:0}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px 10px;flex-shrink:0}
+.sheet-title{font-family:var(--hd);font-size:18px;font-weight:500;letter-spacing:-.2px}
+.sheet-body{overflow-y:auto;padding:0 16px 16px;-webkit-overflow-scrolling:touch}
+
+/* Mode picker — чистый список (Surf 5.9) */
+.mode-pick-list{display:flex;flex-direction:column;padding:0 4px 4px}
+.mode-pick-row{display:flex;align-items:center;gap:12px;padding:15px 8px;
+  cursor:pointer;transition:opacity .12s}
+.mode-pick-row:not(:last-child){border-bottom:1px solid var(--brd)}
+.mode-pick-row:active{opacity:.55}
+.mode-pick-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mode-pick-name{flex:1;font-size:15px;font-weight:500;color:var(--t1);letter-spacing:-.1px}
+.mode-pick-row.active .mode-pick-name{font-weight:600}
+.mode-pick-check{width:18px;height:18px;flex-shrink:0;stroke:var(--acc);fill:none;
+  stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+/* ── Настройки (Surf) ── */
+.set-group{margin-bottom:26px}
+.set-group:last-child{margin-bottom:0}
+.set-group-label{font-size:10px;font-weight:600;color:var(--t2);
+  text-transform:uppercase;letter-spacing:.5px;margin:0 2px 10px;display:block}
+.set-card{background:var(--surf);border:1px solid var(--brd);border-radius:12px;
+  box-shadow:var(--sh);overflow:hidden}
+.set-row{display:flex;align-items:center;gap:12px;padding:12px 14px}
+.set-row:not(:last-child){border-bottom:1px solid var(--brd)}
+.set-row-main{flex:1;min-width:0}
+.set-row-lbl{display:block;font-size:10px;font-weight:600;color:var(--t2);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.set-row-input{width:100%;border:none;background:transparent;padding:0;
+  font-family:var(--ui);font-size:14px;color:var(--t1);outline:none}
+.set-row-input::placeholder{color:var(--t3)}
+.set-status{font-size:11px;font-weight:600;color:var(--t2);flex-shrink:0}
+.set-hint{font-size:11px;color:var(--t3);line-height:1.45;margin:8px 2px 0}
+.set-textarea{width:100%;background:var(--surf);border:1px solid var(--brd);
+  border-radius:12px;box-shadow:var(--sh);padding:13px 14px;
+  font-family:var(--ui);font-size:14px;color:var(--t1);line-height:1.5;
+  outline:none;resize:none;-webkit-user-select:text;user-select:text;
+  transition:border-color .15s}
+.set-textarea:focus{border-color:var(--acc)}
+.set-actions{display:flex;gap:8px;margin-top:10px}
+.mini-btn{flex:1;padding:9px 12px;border-radius:8px;font-family:var(--ui);
+  font-size:12px;font-weight:600;text-align:center;letter-spacing:.1px;
+  transition:opacity .15s,transform .1s cubic-bezier(.22,1,.36,1)}
+.mini-btn:active{transform:scale(.98);opacity:.85}
+.mini-btn-primary{background:var(--acc);color:#fff}
+.mini-btn-soft{background:var(--brd);color:var(--t2)}
+.mini-btn-ghost{background:transparent;color:var(--err);border:1px solid var(--brd2)}
+/* строки режимов внутри карточки настроек */
+.set-mode-row{display:flex;align-items:center;gap:11px;padding:13px 14px;
+  cursor:pointer;transition:background .12s}
+.set-mode-row:not(:last-child){border-bottom:1px solid var(--brd)}
+.set-mode-row:active{background:var(--bg)}
+.set-mode-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.set-mode-name{font-size:14px;font-weight:500;color:var(--t1);flex:1}
+.set-mode-edit{font-size:13px;font-weight:500;color:var(--t3)}
+.add-mode-btn{width:100%;padding:11px;border-radius:8px;
+  border:1.5px dashed var(--brd2);background:transparent;
+  font-family:var(--ui);font-size:13px;color:var(--t2);cursor:pointer;
+  transition:border-color .15s}
+.add-mode-btn:active{border-color:var(--acc);color:var(--acc)}
+
+/* Mode edit form */
+.edit-field{margin-bottom:14px}
+.edit-lbl{font-size:10px;font-weight:600;color:var(--t2);
+  text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.color-swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;flex-shrink:0;
+  transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+.color-swatch:active{transform:scale(.85)}
+.sheet-btns{display:flex;gap:8px;margin-top:6px}
+.sheet-btn{flex:1;padding:12px;border-radius:8px;font-size:14px;font-weight:600;
+  font-family:var(--ui);transition:opacity .15s,transform .1s}
+.sheet-btn:active{opacity:.8;transform:scale(.98)}
+.sheet-btn-primary{background:var(--acc);color:#fff}
+.sheet-btn-del{background:rgba(232,69,58,.1);color:var(--err)}
+.sheet-btn-ghost{background:var(--brd2);color:var(--t2)}
 
 /* ── REVEAL MODAL ── */
 #reveal{position:fixed;inset:0;z-index:800;
@@ -196,7 +296,7 @@ html[data-theme=dark] .header{background:rgba(26,26,29,.94)}
 .reveal-bg{position:absolute;inset:0;background:rgba(20,18,10,.5);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .reveal-card{position:relative;margin:auto 12px;max-height:88vh;overflow-y:auto;
-  background:var(--surf);border-radius:20px;padding:26px 22px 22px;
+  background:var(--surf);border-radius:16px;padding:26px 22px 22px;
   box-shadow:0 24px 80px rgba(10,8,4,.3);
   display:flex;flex-direction:column;gap:14px;
   transform:scale(.93) translateY(18px);
@@ -319,6 +419,10 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
       <button class="icon-btn" id="btn-refresh" title="Обновить">
         <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
       </button>
+      <div class="ai-mode-pill" id="active-mode-pill" style="cursor:pointer" onclick="openModePicker()">
+        <div class="ai-mode-dot" id="active-mode-dot"></div>
+        <span id="active-mode-name"></span>
+      </div>
       <button class="icon-btn" id="btn-export" title="Выгрузка для Telegram">
         <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
@@ -355,53 +459,61 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
       <div class="settings-title">Настройки</div>
       <div class="settings-sub">Токены хранятся локально на устройстве</div>
 
-      <div class="settings-section">
-        <div class="settings-section-label">Planfix</div>
-        <div class="f-block">
-          <label class="f-label" for="inp-pf-token-s">API Токен</label>
-          <input class="f-input" id="inp-pf-token-s" type="text"
-            autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Вставьте токен из Planfix">
-          <div class="f-hint">Управление аккаунтом → Доступ к API → REST API → Создать токен</div>
+      <!-- ── ДОСТУПЫ ── -->
+      <div class="set-group">
+        <div class="set-group-label">Доступы</div>
+        <div class="set-card">
+          <div class="set-row">
+            <div class="set-row-main">
+              <label class="set-row-lbl" for="inp-pf-token-s">Planfix токен</label>
+              <input class="set-row-input" id="inp-pf-token-s" type="text"
+                autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Вставьте токен из Planfix">
+            </div>
+            <span class="set-status" id="s-pf-status">—</span>
+          </div>
+          <div class="set-row">
+            <div class="set-row-main">
+              <label class="set-row-lbl" for="inp-claude-key">Claude API key</label>
+              <input class="set-row-input" id="inp-claude-key" type="password"
+                autocomplete="off" autocorrect="off" spellcheck="false" placeholder="sk-ant-api03-…">
+            </div>
+            <span class="set-status" id="s-cl-status">—</span>
+          </div>
         </div>
-        <button class="btn btn-primary" id="btn-save-pf">Сохранить токен</button>
-        <button class="btn btn-ghost" id="btn-reset">Сбросить и выйти</button>
+        <div class="set-actions">
+          <button class="mini-btn mini-btn-primary" id="btn-save-pf">Сохранить токен</button>
+          <button class="mini-btn mini-btn-primary" id="btn-save-claude">Сохранить ключ</button>
+        </div>
+        <button class="mini-btn mini-btn-ghost" id="btn-reset" style="width:100%;margin-top:8px">Сбросить и выйти</button>
       </div>
 
-      <div class="divider"></div>
-
-      <div class="settings-section">
-        <div class="settings-section-label">Claude AI</div>
-        <div class="f-block">
-          <label class="f-label" for="inp-claude-key">API Key</label>
-          <input class="f-input" id="inp-claude-key" type="password"
-            autocomplete="off" autocorrect="off" spellcheck="false" placeholder="sk-ant-api03-...">
-          <div class="f-hint">platform.anthropic.com → API Keys. Ключ уходит только на api.anthropic.com — нигде не хранится на серверах.</div>
+      <!-- ── КОНТЕКСТ ИИ ── -->
+      <div class="set-group">
+        <div class="set-group-label">Контекст ИИ</div>
+        <textarea class="set-textarea" id="inp-sys-prompt" rows="4"
+          placeholder="Ты операционный ассистент компании Massivburg…"></textarea>
+        <div class="set-hint">Общий системный промпт для всех режимов. Если пусто — каждый режим берёт свой встроенный.</div>
+        <div class="set-actions">
+          <button class="mini-btn mini-btn-primary" id="btn-save-prompt">Сохранить</button>
+          <button class="mini-btn mini-btn-soft" id="btn-reset-prompt">Сбросить</button>
         </div>
-        <button class="btn btn-primary" id="btn-save-claude">Сохранить Claude Key</button>
       </div>
 
-      <div class="divider"></div>
-
-      <div class="settings-section">
-        <div class="settings-section-label">Системный промпт ИИ</div>
-        <div class="f-block">
-          <label class="f-label" for="inp-sys-prompt">Контекст для Claude</label>
-          <textarea class="f-input" id="inp-sys-prompt" rows="5"
-            style="-webkit-user-select:text;user-select:text;resize:none;line-height:1.5"
-            placeholder="Ты операционный ассистент компании Massivburg..."></textarea>
-          <div class="f-hint">Задаёт роль и контекст ИИ при анализе задач. Если пусто — используется встроенный промпт.</div>
-        </div>
-        <button class="btn btn-primary" id="btn-save-prompt">Сохранить промпт</button>
-        <button class="btn btn-secondary" id="btn-reset-prompt">Сбросить к стандартному</button>
+      <!-- ── РЕЖИМЫ АНАЛИЗА ── -->
+      <div class="set-group">
+        <div class="set-group-label">Режимы анализа</div>
+        <div class="set-hint" style="margin:0 2px 10px">Каждый режим — своя роль и промпт. Переключаются в шапке, правятся здесь.</div>
+        <div class="set-card" id="settings-modes-list"></div>
+        <button class="add-mode-btn" onclick="openModeEdit(null)" style="margin-top:10px">+ Добавить режим</button>
       </div>
 
-      <div class="divider"></div>
-
-      <div class="about-box">
-        <div class="about-row"><span class="about-k">Аккаунт</span><span class="about-v">massivburg.planfix.ru</span></div>
-        <div class="about-row"><span class="about-k">Обновлено</span><span class="about-v" id="s-updated">—</span></div>
-        <div class="about-row"><span class="about-k">Токен PF</span><span class="about-v" id="s-pf-status">—</span></div>
-        <div class="about-row"><span class="about-k">Claude Key</span><span class="about-v" id="s-cl-status">—</span></div>
+      <!-- ── О ПРИЛОЖЕНИИ ── -->
+      <div class="set-group" style="margin-bottom:0">
+        <div class="set-group-label">О приложении</div>
+        <div class="about-box">
+          <div class="about-row"><span class="about-k">Аккаунт</span><span class="about-v">massivburg.planfix.ru</span></div>
+          <div class="about-row"><span class="about-k">Обновлено</span><span class="about-v" id="s-updated">—</span></div>
+        </div>
       </div>
     </div>
   </div>
@@ -414,6 +526,32 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
     <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
   </button>
 </nav>
+
+<!-- ══ MODE PICKER SHEET ══ -->
+<div class="sheet-overlay" id="sheet-modes">
+  <div class="sheet-bg" onclick="closeSheet('sheet-modes')"></div>
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="sheet-title">Режим анализа</div>
+      <button class="icon-btn" onclick="closeSheet('sheet-modes')">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div class="mode-pick-list" id="mode-picker-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODE EDIT SHEET ══ -->
+<div class="sheet-overlay" id="sheet-mode-edit">
+  <div class="sheet-bg" onclick="closeSheet('sheet-mode-edit')"></div>
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-body" id="mode-edit-body" style="padding-top:14px"></div>
+  </div>
+</div>
 
 <!-- ══ REVEAL MODAL ══ -->
 <div id="reveal">
@@ -471,6 +609,64 @@ const TABS = [
 const KP_HIDE = ['заключен договор'];
 const TAB_EMOJI = { eskiz:'✏️', rd:'📐', kp:'💼', stolyar:'🪚', sebes:'💰', vykrasy:'🎨' };
 
+// Режимы ИИ-анализа — как роли в Рефлекции
+const AI_MODES = [
+  {
+    id: 'digest',
+    name: 'Дайджест',
+    color: '#1A7AE6',
+    prompt: `Дай анализ в 4 блоках без markdown-форматирования (никаких ## и **):
+
+📊 ДАЙДЖЕСТ
+[1-2 предложения: общая картина раздела]
+
+⚠️ РИСКИ
+[просроченные и без исполнителя по именам и срокам, или «рисков нет»]
+
+🎯 ПРИОРИТЕТЫ ДНЯ
+[2-3 конкретных действия]
+
+📨 ДЛЯ TELEGRAM
+[готовый текст для рабочего чата, 3-5 строк, без markdown]
+
+Только текст и эмодзи, никаких звёздочек и решёток.`
+  },
+  {
+    id: 'list',
+    name: 'Список',
+    color: '#2EBD52',
+    prompt: `Сформируй простой список задач в работе. Без анализа, без выводов, без markdown (никаких ## и **).
+Формат:
+[Имя исполнителя]
+• Название задачи — статус — срок (если есть)
+
+Незаконченные — в начале со значком ⚠️.
+Только текст и эмодзи, никаких звёздочек и решёток.`
+  },
+  {
+    id: 'risks',
+    name: 'Риски',
+    color: '#E8453A',
+    prompt: `Найди только риски: просроченные задачи и задачи без исполнителя. Без markdown (никаких ## и **).
+Формат:
+⚠️ БЕЗ ИСПОЛНИТЕЛЯ (N)
+• список
+
+⏰ ПРОСРОЧЕНО (N)
+• список
+
+Если рисков нет — напиши «Рисков нет ✓». Только текст и эмодзи.`
+  },
+  {
+    id: 'telegram',
+    name: 'Telegram',
+    color: '#A855C7',
+    prompt: `Напиши готовый текст для отправки в рабочий чат Telegram. Без markdown (никаких ## и **).
+3-5 строк, деловой тон, только самое важное: сколько задач, кто без исполнителя, что срочно.
+Начни с эмодзи раздела. Только текст и эмодзи, никаких звёздочек и решёток.`
+  },
+];
+
 /* ════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════ */
@@ -479,6 +675,7 @@ let taskData   = {};   // key → Task[] | null(error)
 let loading    = false;
 let exportKey  = 'all';
 let revealTabKey = null;
+let activeMode = AI_MODES[0].id;  // текущий режим ИИ
 
 /* ════════════════════════════════════════════
    STORAGE HELPERS
@@ -806,6 +1003,173 @@ function hexAlpha(hex, a) {
 }
 
 /* ════════════════════════════════════════════
+   AI MODES MANAGEMENT (как роли в Рефлекции)
+════════════════════════════════════════════ */
+const MODE_COLORS = ['#1A7AE6','#2EBD52','#E8453A','#A855C7','#E89A0A','#4ABDD4','#8A8985','#A68960'];
+
+function getModes() {
+  const saved = LS.getJSON('ai_modes');
+  return saved && saved.length ? saved : JSON.parse(JSON.stringify(AI_MODES));
+}
+function saveModes(modes) { LS.setJSON('ai_modes', modes); }
+
+function getActiveMode() {
+  const modes = getModes();
+  return modes.find(m => m.id === activeMode) || modes[0];
+}
+
+function updateModePill() {
+  const mode = getActiveMode();
+  if (!mode) return;
+  const pill = document.getElementById('active-mode-pill');
+  const dot  = document.getElementById('active-mode-dot');
+  const name = document.getElementById('active-mode-name');
+  if (!pill) return;
+  dot.style.background = mode.color;
+  name.textContent = mode.name;
+  pill.style.background = mode.color + '18';
+  pill.style.borderColor = mode.color + '60';
+  pill.style.color = mode.color;
+}
+
+/* ── Sheet open/close ── */
+function openSheet(id) {
+  document.getElementById(id).classList.add('on');
+}
+function closeSheet(id) {
+  document.getElementById(id).classList.remove('on');
+}
+
+/* ── Mode picker ── */
+function openModePicker() {
+  const modes  = getModes();
+  const grid   = document.getElementById('mode-picker-grid');
+  grid.innerHTML = modes.map(m => {
+    const isActive = m.id === activeMode;
+    return `<div class="mode-pick-row ${isActive?'active':''}" onclick="setActiveMode('${m.id}')">
+      <div class="mode-pick-dot" style="background:${m.color}"></div>
+      <div class="mode-pick-name">${esc(m.name)}</div>
+      ${isActive ? '<svg class="mode-pick-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+    </div>`;
+  }).join('');
+  openSheet('sheet-modes');
+}
+
+function setActiveMode(id) {
+  activeMode = id;
+  LS.set('ai_active_mode', id);
+  closeSheet('sheet-modes');
+  updateModePill();
+  // Обновляем AI панель текущей вкладки
+  const panel = document.querySelector(`#screen-${currentTab} .ai-panel`);
+  if (panel) panel.innerHTML = aiPanelHTML(currentTab);
+  toast('Режим: ' + (getActiveMode()?.name || id));
+}
+
+/* ── Список режимов в настройках (редактирование промптов) ── */
+function renderSettingsModes() {
+  const box = document.getElementById('settings-modes-list');
+  if (!box) return;
+  const modes = getModes();
+  box.innerHTML = modes.map(m => `
+    <div class="set-mode-row" onclick="openModeEdit('${m.id}')">
+      <div class="set-mode-dot" style="background:${m.color}"></div>
+      <div class="set-mode-name">${esc(m.name)}</div>
+      <div class="set-mode-edit">Изменить ›</div>
+    </div>`).join('');
+}
+
+/* ── Mode editor ── */
+let _editingModeId = null;
+
+function openModeEdit(id) {
+  _editingModeId = id;
+  const modes = getModes();
+  const m = modes.find(x => x.id === id) || { id: '', name: '', color: '#1A7AE6', prompt: '' };
+  const swatches = MODE_COLORS.map(c =>
+    `<div class="color-swatch" data-color="${c}"
+      style="background:${c};border:2px solid ${m.color===c?c:'transparent'};
+             outline:2px solid ${m.color===c?c+'40':'transparent'}"
+      onclick="pickModeColor(this,'${c}')"></div>`
+  ).join('');
+
+  document.getElementById('mode-edit-body').innerHTML = `
+    <div class="sheet-title" style="margin-bottom:4px">${id ? 'Режим' : 'Новый режим'}</div>
+    <p style="font-size:12px;color:var(--t2);margin-bottom:16px">Название, цвет и промпт для Claude</p>
+    <div class="edit-field">
+      <label class="edit-lbl">Название</label>
+      <input class="f-input" id="mode-name" value="${esc(m.name)}" placeholder="Например: Список" maxlength="20">
+    </div>
+    <div class="edit-field">
+      <label class="edit-lbl">Цвет</label>
+      <div class="color-swatches">${swatches}</div>
+      <input type="hidden" id="mode-color" value="${m.color}">
+    </div>
+    <div class="edit-field">
+      <label class="edit-lbl">Промпт</label>
+      <textarea class="f-input" id="mode-prompt" rows="7"
+        style="-webkit-user-select:text;user-select:text;resize:none;line-height:1.5"
+        placeholder="Опиши что и как должен делать ИИ...">${esc(m.prompt)}</textarea>
+      <div class="f-hint" style="margin-top:5px">Никаких ## и ** — только текст и эмодзи.</div>
+    </div>
+    <div class="sheet-btns">
+      ${id ? `<button class="sheet-btn sheet-btn-del" onclick="deleteModeConfirm('${id}')">Удалить</button>` :
+              `<button class="sheet-btn sheet-btn-ghost" onclick="closeSheet('sheet-mode-edit')">Отмена</button>`}
+      <button class="sheet-btn sheet-btn-primary" onclick="saveMode()">Сохранить</button>
+    </div>`;
+
+  closeSheet('sheet-modes');
+  openSheet('sheet-mode-edit');
+}
+
+function pickModeColor(el, color) {
+  document.getElementById('mode-color').value = color;
+  document.querySelectorAll('.color-swatch').forEach(d => {
+    const c = d.dataset.color;
+    d.style.border  = `2px solid ${c === color ? c : 'transparent'}`;
+    d.style.outline = `2px solid ${c === color ? c + '40' : 'transparent'}`;
+  });
+}
+
+function saveMode() {
+  const name   = document.getElementById('mode-name').value.trim();
+  const prompt = document.getElementById('mode-prompt').value.trim();
+  const color  = document.getElementById('mode-color').value || '#1A7AE6';
+  if (!name || !prompt) { toast('Заполни название и промпт', 'err'); return; }
+
+  const modes = getModes();
+  const id = _editingModeId;
+  if (id) {
+    const idx = modes.findIndex(m => m.id === id);
+    if (idx >= 0) modes[idx] = { id, name, color, prompt };
+  } else {
+    const newId = 'custom_' + Date.now();
+    modes.push({ id: newId, name, color, prompt });
+  }
+  saveModes(modes);
+  closeSheet('sheet-mode-edit');
+  toast('✓ Режим сохранён');
+  updateModePill();
+  renderSettingsModes();
+}
+
+function deleteModeConfirm(id) {
+  if (!confirm('Удалить этот режим?')) return;
+  let modes = getModes();
+  modes = modes.filter(m => m.id !== id);
+  if (!modes.length) modes = JSON.parse(JSON.stringify(AI_MODES));
+  saveModes(modes);
+  if (activeMode === id) {
+    activeMode = modes[0].id;
+    LS.set('ai_active_mode', activeMode);
+  }
+  closeSheet('sheet-mode-edit');
+  updateModePill();
+  renderSettingsModes();
+  toast('Удалено');
+}
+
+/* ════════════════════════════════════════════
    CLAUDE API
 ════════════════════════════════════════════ */
 async function callClaude(system, user, maxTokens = 700) {
@@ -861,17 +1225,25 @@ function aiPanelHTML(key) {
     return `<button class="ai-btn" style="color:var(--t2)" data-action="go-settings">
       🔑 Добавить Claude API Key для анализа</button>`;
   }
-  const cached = getCachedAi(key);
-  let html = `<button class="ai-btn" data-ai-key="${key}">
-    ${cached ? '↻ Обновить анализ' : '✦ Сгенерировать анализ ИИ'}</button>`;
+
+  const mode = getActiveMode();
+  const btnColor = mode ? mode.color : 'var(--acc)';
+  const cached = getCachedAi(key + '_' + activeMode);
+
+  let h = `<button class="ai-btn" data-ai-key="${key}"
+    style="color:${btnColor};border-color:${btnColor}40">
+    ${cached ? '↻ Обновить' : '✦ Сгенерировать'} · ${esc(mode?.name || '')}
+  </button>`;
+
   if (cached) {
-    html += `<div class="ai-preview" data-show-reveal="${key}">
-      <div class="ai-prev-dot"></div>
+    h += `<div class="ai-preview" data-show-reveal="${key}"
+      style="background:${btnColor}0d;border-color:${btnColor}20">
+      <div class="ai-prev-dot" style="background:${btnColor}"></div>
       <div class="ai-prev-text">${esc(cached.digest || cached.text.slice(0,90))}</div>
       <div class="ai-prev-arr">›</div>
     </div>`;
   }
-  return html;
+  return h;
 }
 
 /* ════════════════════════════════════════════
@@ -895,32 +1267,22 @@ async function generateAi(key, btn) {
     return `• ${t.name} | ${a} | ${t.status?.name||'?'} | срок: ${dl}${ov}`;
   }).join('\n');
 
+  const mode = getActiveMode();
   const customSys = getSysPrompt();
-  const sys = customSys || `Ты операционный ассистент мебельной компании Massivburg (премиум, СПб). Анализируешь задачи раздела "${tab.label}" для утреннего дайджеста технического директора. Пиши чётко, по-деловому, без воды.`;
-  const usr = `Сегодня ${todayStr()}. Раздел: ${tab.label}. Всего: ${tasks.length}. Без исполнителя: ${unassigned.length}. Просрочено: ${overdue.length}.
+  const sys = customSys || `Ты операционный ассистент мебельной компании Massivburg (премиум, СПб, мебель на заказ). Анализируешь задачи раздела "${tab.label}" для технического директора. Пиши чётко, по-деловому, без воды. Никогда не используй markdown-форматирование (никаких ##, **, __, ---).`;
+  const usr = `Сегодня ${todayStr()}. Раздел: ${tab.label}. Всего задач: ${tasks.length}. Без исполнителя: ${unassigned.length}. Просрочено: ${overdue.length}.
 
 Задачи:
 ${lines}
 
-Дай анализ строго в 4 блоках:
-
-📊 ДАЙДЖЕСТ
-[1-2 предложения: общая картина, главное]
-
-⚠️ РИСКИ
-[просроченные и без исполнителя — конкретно по именам и срокам, или «рисков нет»]
-
-🎯 ПРИОРИТЕТЫ ДНЯ
-[2-3 конкретных действия на сегодня]
-
-📨 ДЛЯ TELEGRAM
-[готовый текст для рабочего чата, 3-5 строк]`;
+${mode.prompt}`;
 
   try {
     const result = await callClaude(sys, usr, 700);
     const m = result.match(/📊 ДАЙДЖЕСТ\s*\n([\s\S]*?)(?=\n[⚠🎯📨]|$)/);
     const digest = m ? m[1].trim() : result.slice(0,100);
-    setCachedAi(key, { text: result, digest, day: todayKey(), ts: Date.now() });
+    const cacheKey = key + '_' + activeMode;
+    setCachedAi(cacheKey, { text: result, digest, day: todayKey(), ts: Date.now(), mode: activeMode });
 
     // Re-render AI panel
     const panel = document.querySelector(`#screen-${key} .ai-panel`);
@@ -938,7 +1300,7 @@ ${lines}
    REVEAL MODAL
 ════════════════════════════════════════════ */
 function showReveal(key) {
-  const cached = getCachedAi(key);
+  const cached = getCachedAi(key + '_' + activeMode);
   if (!cached) return;
   const tab = TABS.find(t => t.key === key);
   revealTabKey = key;
@@ -975,7 +1337,7 @@ function closeReveal() {
 
 function copyReveal() {
   if (!revealTabKey) return;
-  const cached = getCachedAi(revealTabKey);
+  const cached = getCachedAi(revealTabKey + '_' + activeMode);
   if (!cached) return;
   const m = cached.text.match(/📨 ДЛЯ TELEGRAM\s*\n([\s\S]*?)$/);
   copyText(m ? m[1].trim() : cached.text);
@@ -1072,8 +1434,14 @@ function openSettings() {
   document.getElementById('inp-pf-token-s').value = getPFToken();
   document.getElementById('inp-claude-key').value = getClaudeKey();
   document.getElementById('inp-sys-prompt').value = getSysPrompt();
-  document.getElementById('s-pf-status').textContent = getPFToken() ? '✓ Задан' : '✗ Нет';
-  document.getElementById('s-cl-status').textContent = getClaudeKey() ? '✓ Задан' : '✗ Нет';
+  const pfOk = !!getPFToken(), clOk = !!getClaudeKey();
+  const pfEl = document.getElementById('s-pf-status');
+  const clEl = document.getElementById('s-cl-status');
+  pfEl.textContent = pfOk ? '✓ задан' : '✗ нет';
+  clEl.textContent = clOk ? '✓ задан' : '✗ нет';
+  pfEl.style.color = pfOk ? 'var(--ok)' : 'var(--t3)';
+  clEl.style.color = clOk ? 'var(--ok)' : 'var(--t3)';
+  renderSettingsModes();
 }
 
 function savePFToken() {
@@ -1081,7 +1449,8 @@ function savePFToken() {
   if (!v) { toast('Введите токен', 'err'); return; }
   LS.set('pf_token', v);
   toast('✓ Токен сохранён');
-  document.getElementById('s-pf-status').textContent = '✓ Задан';
+  const pfEl = document.getElementById('s-pf-status');
+  pfEl.textContent = '✓ задан'; pfEl.style.color = 'var(--ok)';
   setTimeout(() => { switchTab('eskiz'); refreshAll(); }, 600);
 }
 
@@ -1090,7 +1459,8 @@ function saveClaudeKey() {
   if (!v) { toast('Введите ключ', 'err'); return; }
   LS.set('claude_api_key', v);
   toast('✓ Claude Key сохранён');
-  document.getElementById('s-cl-status').textContent = '✓ Задан';
+  const clEl = document.getElementById('s-cl-status');
+  clEl.textContent = '✓ задан'; clEl.style.color = 'var(--ok)';
 }
 
 function getSysPrompt() {
@@ -1120,6 +1490,12 @@ function resetAll() {
 /* ════════════════════════════════════════════
    NAVIGATION
 ════════════════════════════════════════════ */
+function closeSettingsScreen() {
+  document.getElementById('screen-settings').classList.remove('on');
+  document.getElementById(`screen-${currentTab}`).classList.add('on');
+  document.querySelector(`.tab[data-key="${currentTab}"]`)?.classList.add('on');
+}
+
 function switchTab(key) {
   currentTab = key;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
@@ -1239,6 +1615,7 @@ document.getElementById('btn-login').addEventListener('click', () => {
   if (!v) { toast('Введите токен', 'err'); return; }
   LS.set('pf_token', v);
   hideSetup();
+  updateModePill();
   refreshAll();
 });
 document.getElementById('inp-pf-token').addEventListener('keydown', e => {
@@ -1278,6 +1655,11 @@ document.getElementById('btn-reset-prompt').addEventListener('click', resetSysPr
       window.history.replaceState(null,'', window.location.pathname);
     }
   } catch(e) {}
+
+  // Restore active mode
+  const savedMode = LS.get('ai_active_mode');
+  if (savedMode) activeMode = savedMode;
+  updateModePill();
 
   // Check token
   if (!getPFToken()) {
