@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202606212240">
+<meta name="build-version" content="202606212300">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
@@ -151,6 +151,8 @@ html[data-theme=dark] .header{background:rgba(26,26,29,.94)}
 .status-pill{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
   padding:2px 8px;border-radius:100px;display:flex;align-items:center;gap:4px;flex-shrink:0}
 .status-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.stage-chip{font-size:10px;font-weight:600;color:var(--t2);background:var(--brd);
+  border-radius:100px;padding:2px 8px;letter-spacing:.3px;flex-shrink:0}
 .assignee{font-size:11px;font-weight:500;color:var(--t2)}
 .assignee.none{color:var(--err);font-weight:600}
 .deadline{font-size:11px;font-weight:500;color:var(--t2);margin-left:auto;flex-shrink:0}
@@ -432,7 +434,8 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
     </div>
   </div>
   <div class="tabs" id="tabs-row">
-    <button class="tab on" data-key="eskiz">Эскизы <span class="tab-cnt" id="cnt-eskiz">—</span></button>
+    <button class="tab on" data-key="svodka">Сводка <span class="tab-cnt" id="cnt-svodka">—</span></button>
+    <button class="tab" data-key="eskiz">Эскизы <span class="tab-cnt" id="cnt-eskiz">—</span></button>
     <button class="tab" data-key="rd">РД <span class="tab-cnt" id="cnt-rd">—</span></button>
     <button class="tab" data-key="kp">КП <span class="tab-cnt" id="cnt-kp">—</span></button>
     <button class="tab" data-key="stolyar">Столяры <span class="tab-cnt" id="cnt-stolyar">—</span></button>
@@ -443,7 +446,8 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
 
 <!-- ══ TASK SCREENS ══ -->
 <main>
-  <div class="screen on" id="screen-eskiz"></div>
+  <div class="screen on" id="screen-svodka"></div>
+  <div class="screen" id="screen-eskiz"></div>
   <div class="screen" id="screen-rd"></div>
   <div class="screen" id="screen-kp"></div>
   <div class="screen" id="screen-stolyar"></div>
@@ -604,6 +608,7 @@ const TABS = [
   { key:'vykrasy', label:'Выкрас',        template:3774,  grouped:false },
 ];
 const KP_HIDE = ['заключен договор'];
+const VYKRASY_HIDE = ['готово'];
 const TAB_EMOJI = { eskiz:'✏️', rd:'📐', kp:'💼', stolyar:'🪚', sebes:'💰', vykrasy:'🎨' };
 
 // Режимы ИИ-анализа — как роли в Рефлекции
@@ -667,7 +672,7 @@ const AI_MODES = [
 /* ════════════════════════════════════════════
    STATE
 ════════════════════════════════════════════ */
-let currentTab = 'eskiz';
+let currentTab = 'svodka';
 let taskData   = {};   // key → Task[] | null(error)
 let loading    = false;
 let exportKey  = 'all';
@@ -824,6 +829,9 @@ async function refreshAll() {
       `<div class="spin-wrap"><div class="spinner"></div>Загружаю ${t.label}…</div>`;
     document.getElementById(`cnt-${t.key}`).textContent = '…';
   });
+  document.getElementById('screen-svodka').innerHTML =
+    `<div class="spin-wrap"><div class="spinner"></div>Загружаю сводку…</div>`;
+  document.getElementById('cnt-svodka').textContent = '…';
 
   try {
     const results = await Promise.allSettled(
@@ -845,6 +853,7 @@ async function refreshAll() {
     if (!anyOk) throw new Error('Все запросы завершились с ошибкой');
 
     TABS.forEach(t => renderTab(t.key));
+    renderSvodka();
     saveCache(taskData);
     hideOffline();
 
@@ -859,6 +868,7 @@ async function refreshAll() {
     if (cached && cached.data) {
       taskData = cached.data;
       TABS.forEach(t => renderTab(t.key));
+      renderSvodka();
       showOffline(cached.ts);
       toast('Офлайн — показаны кэшированные данные', 'err');
     } else {
@@ -869,6 +879,11 @@ async function refreshAll() {
            <div class="state-text state-err">${esc(e.message)}</div></div>`;
         document.getElementById(`cnt-${t.key}`).textContent = '!';
       });
+      document.getElementById('screen-svodka').innerHTML =
+        `<div class="state"><span class="state-icon">⚠️</span>
+         <div class="state-title">Ошибка загрузки</div>
+         <div class="state-text state-err">${esc(e.message)}</div></div>`;
+      document.getElementById('cnt-svodka').textContent = '!';
       toast('Ошибка: ' + e.message, 'err');
     }
   } finally {
@@ -898,6 +913,13 @@ function renderTab(key) {
   if (key === 'kp') {
     tasks = tasks.filter(t =>
       !KP_HIDE.includes((t.status?.name || '').toLowerCase())
+    );
+  }
+
+  // Выкрасы: скрываем «Готово»
+  if (key === 'vykrasy') {
+    tasks = tasks.filter(t =>
+      !VYKRASY_HIDE.includes((t.status?.name || '').toLowerCase())
     );
   }
 
@@ -957,9 +979,78 @@ function renderTab(key) {
 }
 
 /* ════════════════════════════════════════════
+   RENDER SVODKA  (Эскиз + РД по конструкторам)
+════════════════════════════════════════════ */
+function renderSvodka() {
+  const el  = document.getElementById('screen-svodka');
+  const cnt = document.getElementById('cnt-svodka');
+  const ek  = taskData['eskiz'];
+  const rdd = taskData['rd'];
+
+  // Оба раздела не загрузились
+  if (ek == null && rdd == null) {
+    cnt.textContent = '!';
+    el.innerHTML = `<div class="state"><span class="state-icon">⚠️</span>
+      <div class="state-title">Не удалось загрузить</div>
+      <div class="state-text state-err">Проверьте токен или соединение</div></div>`;
+    return;
+  }
+
+  // Собираем задачи Эскиз + РД с пометкой стадии
+  const STAGE_ORDER = { 'Эскиз': 0, 'РД': 1 };
+  const all = [];
+  if (Array.isArray(ek))  ek.forEach(t  => all.push({ task: t, stage: 'Эскиз' }));
+  if (Array.isArray(rdd)) rdd.forEach(t => all.push({ task: t, stage: 'РД' }));
+
+  cnt.textContent = all.length;
+
+  if (!all.length) {
+    el.innerHTML = `<div class="state"><span class="state-icon">✓</span>
+      <div class="state-title">Задач нет</div>
+      <div class="state-text">В Эскизах и РД активных задач нет</div></div>`;
+    return;
+  }
+
+  const unassigned = all.filter(x => isUnassigned(x.task));
+  const assigned   = all.filter(x => !isUnassigned(x.task));
+
+  let html = '<div>';
+
+  // Без исполнителя — сверху
+  if (unassigned.length) {
+    html += `<div class="grp-unassigned">⚠️ Не назначен · ${unassigned.length}</div>`;
+    unassigned
+      .sort((a,b) => (STAGE_ORDER[a.stage]-STAGE_ORDER[b.stage]) ||
+                     (a.task.name||'').localeCompare(b.task.name||'','ru'))
+      .forEach(x => { html += cardHTML(x.task, '', x.stage); });
+    html += '<div class="grp-gap"></div>';
+  }
+
+  // Группировка по конструкторам А→Я, внутри — Эскизы перед РД
+  const byPerson = {};
+  assigned.forEach(x => {
+    const n = assigneeName(x.task) || '—';
+    (byPerson[n] = byPerson[n] || []).push(x);
+  });
+  Object.keys(byPerson).sort((a,b) => a.localeCompare(b,'ru')).forEach(name => {
+    const group = byPerson[name].sort((a,b) =>
+      (STAGE_ORDER[a.stage]-STAGE_ORDER[b.stage]) ||
+      (a.task.name||'').localeCompare(b.task.name||'','ru'));
+    html += `<div class="grp-assignee">
+      <span class="grp-assignee-name">${esc(name)}</span>
+      <span class="grp-cnt">${group.length}</span></div>`;
+    group.forEach(x => { html += cardHTML(x.task, '', x.stage); });
+    html += '<div class="grp-gap"></div>';
+  });
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+/* ════════════════════════════════════════════
    CARD HTML
 ════════════════════════════════════════════ */
-function cardHTML(task, tabLabel) {
+function cardHTML(task, tabLabel, stage) {
   const name     = esc(task.name || '—');
   const st       = task.status || {};
   const color    = st.color || '#8A8985';
@@ -969,11 +1060,13 @@ function cardHTML(task, tabLabel) {
   const dl       = fmtDate(task.endDate);
   const over     = task.endDate ? isOverdue(task.endDate) : false;
   const clr2     = hexAlpha(color, .1);
+  const stageChip = stage ? `<span class="stage-chip">${esc(stage)}</span>` : '';
 
   return `<div class="card">
     <div class="pbar" style="background:${color}"></div>
     <div class="card-name">${name}</div>
     <div class="card-meta">
+      ${stageChip}
       <div class="status-pill" style="background:${clr2};color:${color}">
         <span class="status-dot" style="background:${color}"></span>${stName}
       </div>
@@ -1250,6 +1343,7 @@ async function generateAi(key, btn) {
   const tab = TABS.find(t => t.key === key);
   let tasks = taskData[key] || [];
   if (key === 'kp') tasks = tasks.filter(t => !KP_HIDE.includes((t.status?.name||'').toLowerCase()));
+  if (key === 'vykrasy') tasks = tasks.filter(t => !VYKRASY_HIDE.includes((t.status?.name||'').toLowerCase()));
   if (!tasks.length) { toast('Нет данных для анализа', 'err'); return; }
 
   btn.classList.add('loading');
@@ -1348,6 +1442,7 @@ function buildExportBlock(key) {
   let tasks = taskData[key];
   if (!tasks || !tasks.length) return null;
   if (key === 'kp') tasks = tasks.filter(t => !KP_HIDE.includes((t.status?.name||'').toLowerCase()));
+  if (key === 'vykrasy') tasks = tasks.filter(t => !VYKRASY_HIDE.includes((t.status?.name||'').toLowerCase()));
   if (!tasks.length) return null;
 
   const emoji = TAB_EMOJI[key] || '📋';
@@ -1448,7 +1543,7 @@ function savePFToken() {
   toast('✓ Токен сохранён');
   const pfEl = document.getElementById('s-pf-status');
   pfEl.textContent = '✓ задан'; pfEl.style.color = 'var(--ok)';
-  setTimeout(() => { switchTab('eskiz'); refreshAll(); }, 600);
+  setTimeout(() => { switchTab('svodka'); refreshAll(); }, 600);
 }
 
 function saveClaudeKey() {
@@ -1480,7 +1575,7 @@ function resetAll() {
   if (!confirm('Сбросить токен? Данные не будут доступны.')) return;
   LS.del('pf_token');
   taskData = {};
-  switchTab('eskiz');
+  switchTab('svodka');
   showSetup();
 }
 
