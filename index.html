@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202606212320">
+<meta name="build-version" content="202606212330">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
@@ -573,6 +573,7 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
     </div>
     <div class="export-tabs" id="export-tabs">
       <button class="etab on" data-ekey="all">Все</button>
+      <button class="etab" data-ekey="svodka">Сводка</button>
       <button class="etab" data-ekey="eskiz">Эскизы</button>
       <button class="etab" data-ekey="rd">РД</button>
       <button class="etab" data-ekey="kp">КП</button>
@@ -609,7 +610,7 @@ const TABS = [
   { key:'vykrasy', label:'Выкрас',        template:3774,  grouped:false },
 ];
 const KP_HIDE = ['заключен договор'];
-const VYKRASY_HIDE = ['готово'];
+const VYKRASY_HIDE = ['готово', 'на согласовании'];
 const TAB_EMOJI = { eskiz:'✏️', rd:'📐', kp:'💼', stolyar:'🪚', sebes:'💰', vykrasy:'🎨' };
 
 // Режимы ИИ-анализа — как роли в Рефлекции
@@ -1504,12 +1505,52 @@ function exportLine(t) {
   return `  • ${t.name}${t.status?.name ? ' ['+t.status.name+']' : ''}${dl ? ' · '+(ov?'⏰':'📅')+' '+dl : ''}`;
 }
 
+/* Сводный блок Эскиз + РД для Telegram (по конструкторам, с пометкой стадии) */
+function buildSvodkaExportBlock() {
+  const STAGE_ORDER = { 'Эскиз': 0, 'РД': 1 };
+  const all = [];
+  if (Array.isArray(taskData['eskiz'])) taskData['eskiz'].forEach(t => all.push({ task:t, stage:'Эскиз' }));
+  if (Array.isArray(taskData['rd']))    taskData['rd'].forEach(t => all.push({ task:t, stage:'РД' }));
+  if (!all.length) return null;
+
+  const svLine = x => {
+    const t = x.task;
+    const dl = fmtDate(t.endDate);
+    const ov = t.endDate && isOverdue(t.endDate);
+    return `  • [${x.stage}] ${t.name}${t.status?.name ? ' ['+t.status.name+']' : ''}${dl ? ' · '+(ov?'⏰':'📅')+' '+dl : ''}`;
+  };
+  const bySort = (a,b) => (STAGE_ORDER[a.stage]-STAGE_ORDER[b.stage]) ||
+                          (a.task.name||'').localeCompare(b.task.name||'','ru');
+
+  const lines = [`📋 *СВОДКА · ЭСКИЗ + РД* (${all.length})`, ''];
+
+  const unassigned = all.filter(x => isUnassigned(x.task));
+  const assigned   = all.filter(x => !isUnassigned(x.task));
+
+  if (unassigned.length) {
+    lines.push('⚠️ *Не назначен*');
+    unassigned.sort(bySort).forEach(x => lines.push(svLine(x)));
+    lines.push('');
+  }
+  const by = {};
+  assigned.forEach(x => { const n=assigneeName(x.task)||'—'; (by[n]=by[n]||[]).push(x); });
+  Object.keys(by).sort((a,b)=>a.localeCompare(b,'ru')).forEach(n => {
+    lines.push(`👤 *${n}*`);
+    by[n].sort(bySort).forEach(x => lines.push(svLine(x)));
+    lines.push('');
+  });
+  return lines.join('\n').trim();
+}
+
 function renderExport() {
   let text = '';
   if (exportKey === 'all') {
     const parts = [`📊 *Massivburg · Дашборд ${todayStr()}*`, ''];
     TABS.forEach(t => { const b=buildExportBlock(t.key); if(b){parts.push(b);parts.push('');} });
     text = parts.join('\n').trim();
+  } else if (exportKey === 'svodka') {
+    const b = buildSvodkaExportBlock();
+    text = b ? `📊 *Massivburg · Сводка ${todayStr()}*\n\n${b}` : 'Нет данных';
   } else {
     const b = buildExportBlock(exportKey);
     const tab = TABS.find(t=>t.key===exportKey);
