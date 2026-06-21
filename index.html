@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202606201810">
+<meta name="build-version" content="202606212100">
+
+<!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
+<link rel="manifest" href="./manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MB Dash">
 <style>
 /* Системные шрифты — без внешних запросов, мгновенно */
 </style>
@@ -1282,6 +1289,17 @@ document.getElementById('btn-reset-prompt').addEventListener('click', resetSysPr
   hideSetup();
   refreshAll();
 })();
+
+/* ════════════════════════════════════════════
+   SERVICE WORKER  (офлайн + кэш оболочки)
+════════════════════════════════════════════ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('[SW] registered:', reg.scope))
+      .catch(err => console.error('[SW] registration failed:', err));
+  });
+}
 </script>
 </body>
 </html>
