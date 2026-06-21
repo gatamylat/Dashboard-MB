@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202606212230">
+<meta name="build-version" content="202606212240">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
@@ -416,9 +416,6 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
   <div class="header-row">
     <div class="logo">Massiv<span>burg</span></div>
     <div class="hdr-btns">
-      <button class="icon-btn" id="btn-refresh" title="Обновить">
-        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-      </button>
       <div class="ai-mode-pill" id="active-mode-pill" style="cursor:pointer" onclick="openModePicker()">
         <div class="ai-mode-dot" id="active-mode-dot"></div>
         <span id="active-mode-name"></span>
@@ -1518,7 +1515,6 @@ function toggleTheme() {
 ════════════════════════════════════════════ */
 function setLoading(on) {
   document.getElementById('loadbar').classList.toggle('on', on);
-  document.getElementById('btn-refresh').style.opacity  = on ? '.4' : '';
   document.getElementById('btn-refresh2').style.opacity = on ? '.4' : '';
 }
 
@@ -1622,7 +1618,6 @@ document.getElementById('inp-pf-token').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('btn-login').click();
 });
 
-document.getElementById('btn-refresh').addEventListener('click', refreshAll);
 document.getElementById('btn-refresh2').addEventListener('click', refreshAll);
 document.getElementById('btn-export').addEventListener('click', openExport);
 document.getElementById('btn-theme').addEventListener('click', toggleTheme);
