@@ -599,7 +599,10 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
 ════════════════════════════════════════════ */
 const PF_BASE = 'https://massivburg.planfix.ru/rest';
 const STATUS_EXCLUDE = [3, 181, 134, 118, 7, 0];
-const DUMMY_USER_ID = 81; // «Не назначен» в Planfix
+// «Не назначен» в Planfix: id приходит строкой вида "user:60".
+// Можно дополнять список, если появятся другие служебные id.
+const DUMMY_USER_IDS = ['user:60', 'user:81'];
+const DUMMY_USER_NAMES = ['без исполнителя', 'не назначен'];
 
 const TABS = [
   { key:'eskiz',   label:'Эскиз',         template:1422,  grouped:true  },
@@ -696,14 +699,28 @@ const getPFToken    = () => LS.get('pf_token');
 const getClaudeKey  = () => LS.get('claude_api_key');
 
 /* ════════════════════════════════════════════
-   DATE UTILS  (no new Date() for parsing)
+   DATE UTILS  (Planfix endDateTime — объект {date,time,datetime})
 ════════════════════════════════════════════ */
-function parseDate(str) {
-  // API format: "DD-MM-YYYY HH:MM" or "DD-MM-YYYY" or ""
-  if (!str || typeof str !== 'string') return null;
-  const s = str.trim();
-  if (!s) return null;
-  const datePart = s.split(' ')[0];
+
+// Достаёт строку даты "DD-MM-YYYY" из значения endDateTime.
+// Planfix отдаёт объект { date:"10-07-2026", time:"00:00", datetime:"2026-07-10T00:00Z" }.
+// На всякий случай поддерживаем и просто строку "DD-MM-YYYY [HH:MM]".
+function dateField(val) {
+  if (!val) return null;
+  if (typeof val === 'object') return val.date || null;   // основной случай
+  if (typeof val === 'string') return val.split(' ')[0] || null;
+  return null;
+}
+
+// Возвращает ISO-строку для точного сравнения времени, если она есть.
+function isoField(val) {
+  if (val && typeof val === 'object') return val.datetime || val.dateTimeUtcSeconds || null;
+  return null;
+}
+
+function parseDate(val) {
+  const datePart = dateField(val);
+  if (!datePart) return null;
   const p = datePart.split('-');
   if (p.length < 3) return null;
   const [d, m, y] = p;
@@ -713,13 +730,24 @@ function parseDate(str) {
   return { d, m, y };
 }
 
-function fmtDate(str) {
-  const p = parseDate(str);
+function fmtDate(val) {
+  const p = parseDate(val);
   return p ? `${p.d}-${p.m}-${p.y}` : null;
 }
 
-function isOverdue(str) {
-  const p = parseDate(str);
+function isOverdue(val) {
+  // Если есть ISO — сравниваем через нативный Date (надёжнее всего).
+  const iso = isoField(val);
+  if (iso) {
+    const t = new Date(iso).getTime();
+    if (!isNaN(t)) {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      return t < today.getTime();
+    }
+  }
+  // Иначе — по разобранным D/M/Y.
+  const p = parseDate(val);
   if (!p) return false;
   const now = new Date();
   const ny = now.getFullYear(), nm = now.getMonth()+1, nd = now.getDate();
@@ -745,17 +773,26 @@ function nowHM() {
 /* ════════════════════════════════════════════
    TASK HELPERS
 ════════════════════════════════════════════ */
+function isServiceUser(u) {
+  if (!u) return true;
+  const id = String(u.id || '');
+  const nm = String(u.name || '').toLowerCase().trim();
+  if (DUMMY_USER_IDS.includes(id)) return true;
+  if (DUMMY_USER_NAMES.some(n => nm.includes(n))) return true;
+  return false;
+}
+
 function isUnassigned(task) {
   const users = task.assignees?.users || [];
   if (!users.length) return true;
-  if (users.length === 1 && +users[0].id === DUMMY_USER_ID) return true;
+  if (users.length === 1 && isServiceUser(users[0])) return true;
   return false;
 }
 
 function assigneeName(task) {
   const users = task.assignees?.users || [];
   if (!users.length) return null;
-  if (users.length === 1 && +users[0].id === DUMMY_USER_ID) return null;
+  if (users.length === 1 && isServiceUser(users[0])) return null;
   return users[0].name || null;
 }
 
@@ -773,7 +810,7 @@ async function pfFetch(templateId, offset = 0) {
       'Content-Type':  'application/json',
     },
     body: JSON.stringify({
-      fields:   'id,name,status,assignees,endDate',
+      fields:   'id,name,status,assignees,endDateTime',
       pageSize: 100,
       offset,
       filters: [
@@ -1064,8 +1101,8 @@ function cardHTML(task, tabLabel, stage) {
   const stName   = esc(st.name || '');
   const aName    = assigneeName(task);
   const noAssign = !aName;
-  const dl       = fmtDate(task.endDate);
-  const over     = task.endDate ? isOverdue(task.endDate) : false;
+  const dl       = fmtDate(task.endDateTime);
+  const over     = task.endDateTime ? isOverdue(task.endDateTime) : false;
   const clr2     = hexAlpha(color, .1);
   const stageChip = stage ? `<span class="stage-chip">${esc(stage)}</span>` : '';
 
@@ -1371,11 +1408,11 @@ async function generateAi(key, btn) {
   btn.innerHTML = '<span class="spin-sm"></span> Анализирую…';
 
   const unassigned = tasks.filter(t => isUnassigned(t));
-  const overdue    = tasks.filter(t => t.endDate && isOverdue(t.endDate));
+  const overdue    = tasks.filter(t => t.endDateTime && isOverdue(t.endDateTime));
   const lines = tasks.map(t => {
     const a   = assigneeName(t) || 'НЕ НАЗНАЧЕН';
-    const dl  = fmtDate(t.endDate) || 'без срока';
-    const ov  = t.endDate && isOverdue(t.endDate) ? ' [ПРОСРОЧЕНО]' : '';
+    const dl  = fmtDate(t.endDateTime) || 'без срока';
+    const ov  = t.endDateTime && isOverdue(t.endDateTime) ? ' [ПРОСРОЧЕНО]' : '';
     const stg = t._stage ? `[${t._stage}] ` : '';
     return `• ${stg}${t.name} | ${a} | ${t.status?.name||'?'} | срок: ${dl}${ov}`;
   }).join('\n');
@@ -1500,8 +1537,8 @@ function buildExportBlock(key) {
 }
 
 function exportLine(t) {
-  const dl = fmtDate(t.endDate);
-  const ov = t.endDate && isOverdue(t.endDate);
+  const dl = fmtDate(t.endDateTime);
+  const ov = t.endDateTime && isOverdue(t.endDateTime);
   return `  • ${t.name}${t.status?.name ? ' ['+t.status.name+']' : ''}${dl ? ' · '+(ov?'⏰':'📅')+' '+dl : ''}`;
 }
 
@@ -1515,8 +1552,8 @@ function buildSvodkaExportBlock() {
 
   const svLine = x => {
     const t = x.task;
-    const dl = fmtDate(t.endDate);
-    const ov = t.endDate && isOverdue(t.endDate);
+    const dl = fmtDate(t.endDateTime);
+    const ov = t.endDateTime && isOverdue(t.endDateTime);
     return `  • [${x.stage}] ${t.name}${t.status?.name ? ' ['+t.status.name+']' : ''}${dl ? ' · '+(ov?'⏰':'📅')+' '+dl : ''}`;
   };
   const bySort = (a,b) => (STAGE_ORDER[a.stage]-STAGE_ORDER[b.stage]) ||
