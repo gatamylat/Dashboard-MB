@@ -614,6 +614,9 @@ const TABS = [
 ];
 const KP_HIDE = ['заключен договор'];
 const VYKRASY_HIDE = ['готово', 'на согласовании'];
+// Себестоимость: показываем только задачи Яны Урбановской (user:183).
+// Пустой массив = показывать всех (фильтр отключён).
+const SEBES_ONLY_USERS = ['user:183'];
 const TAB_EMOJI = { eskiz:'✏️', rd:'📐', kp:'💼', stolyar:'🪚', sebes:'💰', vykrasy:'🎨' };
 
 // Режимы ИИ-анализа — как роли в Рефлекции
@@ -796,6 +799,16 @@ function assigneeName(task) {
   return users[0].name || null;
 }
 
+// Себестоимость: оставляем только задачи, где среди исполнителей есть нужный user.
+// Если SEBES_ONLY_USERS пуст — фильтр не применяется.
+function filterSebes(tasks) {
+  if (!SEBES_ONLY_USERS.length) return tasks;
+  return tasks.filter(t => {
+    const users = t.assignees?.users || [];
+    return users.some(u => SEBES_ONLY_USERS.includes(String(u.id || '')));
+  });
+}
+
 /* ════════════════════════════════════════════
    PLANFIX API
 ════════════════════════════════════════════ */
@@ -961,6 +974,9 @@ function renderTab(key) {
       !VYKRASY_HIDE.includes((t.status?.name || '').toLowerCase())
     );
   }
+
+  // Себестоимость: только задачи Урбановской
+  if (key === 'sebes') tasks = filterSebes(tasks);
 
   cnt.textContent = tasks.length;
 
@@ -1401,6 +1417,7 @@ async function generateAi(key, btn) {
     tasks = taskData[key] || [];
     if (key === 'kp')      tasks = tasks.filter(t => !KP_HIDE.includes((t.status?.name||'').toLowerCase()));
     if (key === 'vykrasy') tasks = tasks.filter(t => !VYKRASY_HIDE.includes((t.status?.name||'').toLowerCase()));
+    if (key === 'sebes')   tasks = filterSebes(tasks);
   }
   if (!tasks.length) { toast('Нет данных для анализа', 'err'); return; }
 
@@ -1502,6 +1519,7 @@ function buildExportBlock(key) {
   if (!tasks || !tasks.length) return null;
   if (key === 'kp') tasks = tasks.filter(t => !KP_HIDE.includes((t.status?.name||'').toLowerCase()));
   if (key === 'vykrasy') tasks = tasks.filter(t => !VYKRASY_HIDE.includes((t.status?.name||'').toLowerCase()));
+  if (key === 'sebes') tasks = filterSebes(tasks);
   if (!tasks.length) return null;
 
   const emoji = TAB_EMOJI[key] || '📋';
