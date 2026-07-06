@@ -5,10 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202606212330">
+<meta name="build-version" content="202607062055">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./favicon-16.png">
+<link rel="icon" href="./favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -439,6 +443,8 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
     <button class="tab" data-key="rd">РД <span class="tab-cnt" id="cnt-rd">—</span></button>
     <button class="tab" data-key="kp">КП <span class="tab-cnt" id="cnt-kp">—</span></button>
     <button class="tab" data-key="stolyar">Столяры <span class="tab-cnt" id="cnt-stolyar">—</span></button>
+    <button class="tab" data-key="sborka">Сборщики <span class="tab-cnt" id="cnt-sborka">—</span></button>
+    <button class="tab" data-key="shlif">Шлифовщики <span class="tab-cnt" id="cnt-shlif">—</span></button>
     <button class="tab" data-key="sebes">Себестоимость <span class="tab-cnt" id="cnt-sebes">—</span></button>
     <button class="tab" data-key="vykrasy">Выкрасы <span class="tab-cnt" id="cnt-vykrasy">—</span></button>
   </div>
@@ -451,6 +457,8 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
   <div class="screen" id="screen-rd"></div>
   <div class="screen" id="screen-kp"></div>
   <div class="screen" id="screen-stolyar"></div>
+  <div class="screen" id="screen-sborka"></div>
+  <div class="screen" id="screen-shlif"></div>
   <div class="screen" id="screen-sebes"></div>
   <div class="screen" id="screen-vykrasy"></div>
 
@@ -578,6 +586,8 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
       <button class="etab" data-ekey="rd">РД</button>
       <button class="etab" data-ekey="kp">КП</button>
       <button class="etab" data-ekey="stolyar">Столяры</button>
+      <button class="etab" data-ekey="sborka">Сборщики</button>
+      <button class="etab" data-ekey="shlif">Шлифовщики</button>
       <button class="etab" data-ekey="sebes">Себестоимость</button>
       <button class="etab" data-ekey="vykrasy">Выкрасы</button>
     </div>
@@ -609,6 +619,8 @@ const TABS = [
   { key:'rd',      label:'РД',            template:1423,  grouped:true  },
   { key:'kp',      label:'КП',            template:1340,  grouped:false },
   { key:'stolyar', label:'Столяр',        template:4965,  grouped:true  },
+  { key:'sborka',  label:'Сборщик',       template:40881, grouped:true  },
+  { key:'shlif',   label:'Шлифовщик',     template:19743, grouped:true  },
   { key:'sebes',   label:'Себестоимость', template:63742, grouped:false },
   { key:'vykrasy', label:'Выкрас',        template:3774,  grouped:false },
 ];
@@ -617,7 +629,7 @@ const VYKRASY_HIDE = ['готово', 'на согласовании'];
 // Себестоимость: показываем только задачи Яны Урбановской (user:183).
 // Пустой массив = показывать всех (фильтр отключён).
 const SEBES_ONLY_USERS = ['user:183'];
-const TAB_EMOJI = { eskiz:'✏️', rd:'📐', kp:'💼', stolyar:'🪚', sebes:'💰', vykrasy:'🎨' };
+const TAB_EMOJI = { eskiz:'✏️', rd:'📐', kp:'💼', stolyar:'🪚', sborka:'🔧', shlif:'🪵', sebes:'💰', vykrasy:'🎨' };
 
 // Режимы ИИ-анализа — как роли в Рефлекции
 const AI_MODES = [
