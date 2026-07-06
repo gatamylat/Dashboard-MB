@@ -4,15 +4,21 @@
 //  ВАЖНО ПРИ ОБНОВЛЕНИИ:
 //  Меняй CACHE_VERSION при каждом деплое — старый кэш
 //  автоматически сбросится у всех пользователей.
-//  Формат: 'mb-dash-YYYYMMDDHHММ'
+//  Формат: 'mb-dash-202607062055YYYYMMDDHHММ'
 // ════════════════════════════════════════════════════════════
 
-const CACHE_VERSION = 'mb-dash-202606212330';  // ← менять при каждом деплое
+const CACHE_VERSION = 'mb-dash-202607062055';  // ← менять при каждом деплое
 
 const SHELL = [
   './',
   './index.html',
   './manifest.json',
+  './apple-touch-icon.png',
+  './icon-192.png',
+  './icon-512.png',
+  './favicon.ico',
+  './favicon-32.png',
+  './favicon-16.png',
 ];
 
 // ── INSTALL: кэшируем оболочку ────────────────────────────
