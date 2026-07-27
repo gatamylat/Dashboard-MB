@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202607271340">
+<meta name="build-version" content="202607271354">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
@@ -2050,7 +2050,7 @@ document.getElementById('btn-reset-prompt').addEventListener('click', resetSysPr
 document.getElementById('btn-search').addEventListener('click', toggleSearch);
 document.getElementById('search-input').addEventListener('input', e => onSearchInput(e.target.value));
 document.getElementById('search-clear').addEventListener('click', clearTabSearch);
-// Пилюля «эта вкладка» → открыть сквозной поиск
+// Кнопка «по всем» → открыть сквозной поиск (переносим текущий запрос)
 document.getElementById('search-scope').addEventListener('click', () => {
   const cur = document.getElementById('search-input').value;
   openGlobalSearch();
@@ -2063,13 +2063,10 @@ document.getElementById('search-scope').addEventListener('click', () => {
 document.getElementById('so-input').addEventListener('input', e => onGlobalInput(e.target.value));
 document.getElementById('so-clear').addEventListener('click', clearGlobalSearch);
 document.getElementById('so-back').addEventListener('click', closeGlobalSearch);
-// Enter в строке вкладки → перейти в сквозной
+// Enter/Escape в строке вкладки: Enter не переключает режим (фильтр уже живой по вводу),
+// просто убирает фокус; Escape закрывает строку поиска.
 document.getElementById('search-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const cur = e.target.value;
-    openGlobalSearch();
-    if (cur) { document.getElementById('so-input').value = cur; onGlobalInput(cur); }
-  }
+  if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
   if (e.key === 'Escape') toggleSearch();
 });
 document.getElementById('so-input').addEventListener('keydown', e => {
