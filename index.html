@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202607062055">
+<meta name="build-version" content="202607271331">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
@@ -387,12 +387,44 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
 #toast.ok{background:var(--ok)}
 #toast.err{background:var(--err)}
 
-/* ── LOAD BAR ── */
-#loadbar{position:fixed;top:0;left:0;right:0;z-index:999;
-  height:2px;background:var(--acc);transform-origin:left;
-  transform:scaleX(0);opacity:0;transition:opacity .2s}
-#loadbar.on{opacity:1;animation:lb 1.5s ease-in-out infinite}
-@keyframes lb{0%{transform:scaleX(0)}60%{transform:scaleX(.8)}100%{transform:scaleX(1);opacity:0}}
+/* ── SEARCH ── */
+.search-wrap{padding:0 20px 10px;overflow:hidden;max-height:0;opacity:0;
+  transition:max-height .28s cubic-bezier(.22,1,.36,1),opacity .2s,padding .28s}
+.search-wrap.on{max-height:60px;opacity:1;padding:0 20px 10px}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--surf);
+  border:1.5px solid var(--brd2);border-radius:10px;padding:9px 12px;
+  transition:border-color .15s}
+.search-box:focus-within{border-color:var(--acc)}
+.search-box svg{width:16px;height:16px;stroke:var(--t2);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.search-input{flex:1;border:none;background:none;outline:none;font-size:14px;
+  color:var(--t1);font-family:var(--ui);min-width:0}
+.search-input::placeholder{color:var(--t3)}
+.search-scope{font-size:10px;font-weight:600;color:var(--acc);background:var(--acc-bg);
+  border-radius:100px;padding:3px 9px;letter-spacing:.3px;white-space:nowrap;
+  cursor:pointer;flex-shrink:0;transition:background .12s}
+.search-scope:active{background:rgba(26,122,230,.16)}
+.search-clear{width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+  color:var(--t3);cursor:pointer;flex-shrink:0;border-radius:50%}
+.search-clear:active{background:var(--brd)}
+.search-clear svg{width:14px;height:14px}
+
+/* Глобальные результаты — оверлей */
+#search-overlay{position:fixed;inset:0;z-index:750;
+  background:var(--bg);display:none;flex-direction:column}
+#search-overlay.on{display:flex}
+.so-head{position:sticky;top:0;z-index:2;background:var(--bg);
+  padding:calc(12px + var(--st)) 16px 8px;border-bottom:1px solid var(--brd2)}
+.so-head .search-box{margin-bottom:0}
+.so-back{font-size:13px;color:var(--acc);font-weight:600;padding:8px 2px 10px;
+  display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.so-results{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 16px 40px}
+.so-group-hd{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;
+  letter-spacing:.5px;padding:14px 2px 6px;display:flex;align-items:center;gap:6px}
+.so-group-hd .g-cnt{font-size:10px;color:var(--acc);background:var(--acc-bg);
+  border-radius:100px;padding:1px 7px}
+.so-hit{color:var(--acc);font-weight:600}
+.search-count{font-size:11px;color:var(--t2);padding:4px 2px 2px}
 
 
 </style>
@@ -426,6 +458,9 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
         <div class="ai-mode-dot" id="active-mode-dot"></div>
         <span id="active-mode-name"></span>
       </div>
+      <button class="icon-btn" id="btn-search" title="Поиск">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
       <button class="icon-btn" id="btn-export" title="Выгрузка для Telegram">
         <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
@@ -435,6 +470,17 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
       <button class="icon-btn" id="btn-settings" title="Настройки">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       </button>
+    </div>
+  </div>
+  <div class="search-wrap" id="search-wrap">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="search-input" id="search-input" placeholder="Поиск: название или исполнитель…"
+        autocomplete="off" autocorrect="off" spellcheck="false">
+      <span class="search-scope" id="search-scope" title="Область поиска">эта вкладка</span>
+      <span class="search-clear" id="search-clear">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </span>
     </div>
   </div>
   <div class="tabs" id="tabs-row">
@@ -536,6 +582,23 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
     <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--t2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
   </button>
 </nav>
+
+<!-- ══ GLOBAL SEARCH OVERLAY ══ -->
+<div id="search-overlay">
+  <div class="so-head">
+    <div class="so-back" id="so-back">‹ Закрыть</div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" class="search-input" id="so-input" placeholder="Поиск по всем разделам…"
+        autocomplete="off" autocorrect="off" spellcheck="false">
+      <span class="search-clear" id="so-clear">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </span>
+    </div>
+    <div class="search-count" id="so-count"></div>
+  </div>
+  <div class="so-results" id="so-results"></div>
+</div>
 
 <!-- ══ MODE PICKER SHEET ══ -->
 <div class="sheet-overlay" id="sheet-modes">
@@ -990,12 +1053,21 @@ function renderTab(key) {
   // Себестоимость: только задачи Урбановской
   if (key === 'sebes') tasks = filterSebes(tasks);
 
+  // Поиск в пределах текущей вкладки
+  if (searchOpen && searchQuery && key === currentTab) {
+    tasks = tasks.filter(t => taskMatches(t, searchQuery));
+  }
+
   cnt.textContent = tasks.length;
 
   if (!tasks.length) {
-    el.innerHTML = `<div class="state"><span class="state-icon">✓</span>
-      <div class="state-title">Задач нет</div>
-      <div class="state-text">Все активные задачи выполнены</div></div>`;
+    el.innerHTML = (searchOpen && searchQuery && key === currentTab)
+      ? `<div class="state"><span class="state-icon">🔍</span>
+         <div class="state-title">Ничего не найдено</div>
+         <div class="state-text">Попробуйте другой запрос или «сквозной поиск»</div></div>`
+      : `<div class="state"><span class="state-icon">✓</span>
+         <div class="state-title">Задач нет</div>
+         <div class="state-text">Все активные задачи выполнены</div></div>`;
     return;
   }
 
@@ -1725,6 +1797,8 @@ function switchTab(key) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   document.getElementById(`screen-${key}`).classList.add('on');
   document.querySelector(`.tab[data-key="${key}"]`)?.classList.add('on');
+  // если открыт поиск с запросом — применяем его к новой вкладке
+  if (searchOpen && searchQuery) renderTab(key);
 }
 
 /* ════════════════════════════════════════════
@@ -1779,6 +1853,110 @@ function esc(s) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+
+/* ════════════════════════════════════════════
+   ПОИСК  (два режима: вкладка + сквозной)
+════════════════════════════════════════════ */
+
+// Нормализация: нижний регистр + ё→е (как в telegram-боте)
+function normSearch(s) {
+  return String(s || '').toLowerCase().replace(/ё/g, 'е').trim();
+}
+
+// Совпадает ли задача с запросом (по названию + исполнителю)
+function taskMatches(task, q) {
+  if (!q) return true;
+  const name = normSearch(task.name);
+  const aName = normSearch(assigneeName(task) || '');
+  return name.includes(q) || aName.includes(q);
+}
+
+let searchOpen = false;   // открыта ли строка на текущей вкладке
+let searchQuery = '';     // активный запрос вкладки
+
+// ── Строка поиска на вкладке ──
+function toggleSearch() {
+  searchOpen = !searchOpen;
+  const wrap = document.getElementById('search-wrap');
+  wrap.classList.toggle('on', searchOpen);
+  if (searchOpen) {
+    setTimeout(() => document.getElementById('search-input').focus(), 50);
+  } else {
+    searchQuery = '';
+    document.getElementById('search-input').value = '';
+    renderTab(currentTab);   // сброс фильтра
+  }
+}
+
+function onSearchInput(v) {
+  searchQuery = normSearch(v);
+  renderTab(currentTab);
+}
+
+function clearTabSearch() {
+  searchQuery = '';
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-input').focus();
+  renderTab(currentTab);
+}
+
+// ── Сквозной поиск по всем вкладкам (оверлей) ──
+function openGlobalSearch() {
+  document.getElementById('search-overlay').classList.add('on');
+  const inp = document.getElementById('so-input');
+  inp.value = '';
+  document.getElementById('so-results').innerHTML = '';
+  document.getElementById('so-count').textContent = '';
+  setTimeout(() => inp.focus(), 50);
+}
+
+function closeGlobalSearch() {
+  document.getElementById('search-overlay').classList.remove('on');
+}
+
+function onGlobalInput(v) {
+  const q = normSearch(v);
+  const box = document.getElementById('so-results');
+  const cnt = document.getElementById('so-count');
+
+  if (!q) { box.innerHTML = ''; cnt.textContent = ''; return; }
+
+  let total = 0;
+  let html = '';
+
+  TABS.forEach(tab => {
+    let tasks = taskData[tab.key];
+    if (!Array.isArray(tasks) || !tasks.length) return;
+
+    // применяем те же спец-фильтры вкладок
+    if (tab.key === 'kp')      tasks = tasks.filter(t => !KP_HIDE.includes((t.status?.name||'').toLowerCase()));
+    if (tab.key === 'vykrasy') tasks = tasks.filter(t => !VYKRASY_HIDE.includes((t.status?.name||'').toLowerCase()));
+    if (tab.key === 'sebes')   tasks = filterSebes(tasks);
+
+    const hits = tasks.filter(t => taskMatches(t, q));
+    if (!hits.length) return;
+
+    total += hits.length;
+    const emoji = TAB_EMOJI[tab.key] || '📋';
+    html += `<div class="so-group-hd">${emoji} ${esc(tab.label)} <span class="g-cnt">${hits.length}</span></div>`;
+    hits.forEach(t => { html += cardHTML(t, tab.label); });
+  });
+
+  cnt.textContent = total ? `Найдено: ${total}` : '';
+  box.innerHTML = total
+    ? html
+    : `<div class="state"><span class="state-icon">🔍</span>
+       <div class="state-title">Ничего не найдено</div>
+       <div class="state-text">Попробуйте другой запрос</div></div>`;
+}
+
+function clearGlobalSearch() {
+  const inp = document.getElementById('so-input');
+  inp.value = '';
+  inp.focus();
+  onGlobalInput('');
+}
+
 
 /* ════════════════════════════════════════════
    EVENT DELEGATION  (один слушатель на всё)
@@ -1857,6 +2035,36 @@ document.getElementById('btn-save-claude').addEventListener('click', saveClaudeK
 document.getElementById('btn-reset').addEventListener('click', resetAll);
 document.getElementById('btn-save-prompt').addEventListener('click', saveSysPrompt);
 document.getElementById('btn-reset-prompt').addEventListener('click', resetSysPrompt);
+
+// ── Поиск ──
+document.getElementById('btn-search').addEventListener('click', toggleSearch);
+document.getElementById('search-input').addEventListener('input', e => onSearchInput(e.target.value));
+document.getElementById('search-clear').addEventListener('click', clearTabSearch);
+// Пилюля «эта вкладка» → открыть сквозной поиск
+document.getElementById('search-scope').addEventListener('click', () => {
+  const cur = document.getElementById('search-input').value;
+  openGlobalSearch();
+  if (cur) {
+    document.getElementById('so-input').value = cur;
+    onGlobalInput(cur);
+  }
+});
+// Оверлей сквозного поиска
+document.getElementById('so-input').addEventListener('input', e => onGlobalInput(e.target.value));
+document.getElementById('so-clear').addEventListener('click', clearGlobalSearch);
+document.getElementById('so-back').addEventListener('click', closeGlobalSearch);
+// Enter в строке вкладки → перейти в сквозной
+document.getElementById('search-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const cur = e.target.value;
+    openGlobalSearch();
+    if (cur) { document.getElementById('so-input').value = cur; onGlobalInput(cur); }
+  }
+  if (e.key === 'Escape') toggleSearch();
+});
+document.getElementById('so-input').addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeGlobalSearch();
+});
 
 
 
