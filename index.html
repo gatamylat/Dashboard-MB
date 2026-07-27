@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202607271331">
+<meta name="build-version" content="202607271340">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
@@ -400,10 +400,11 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
 .search-input{flex:1;border:none;background:none;outline:none;font-size:14px;
   color:var(--t1);font-family:var(--ui);min-width:0}
 .search-input::placeholder{color:var(--t3)}
-.search-scope{font-size:10px;font-weight:600;color:var(--acc);background:var(--acc-bg);
-  border-radius:100px;padding:3px 9px;letter-spacing:.3px;white-space:nowrap;
-  cursor:pointer;flex-shrink:0;transition:background .12s}
-.search-scope:active{background:rgba(26,122,230,.16)}
+.search-global-btn{font-size:11px;font-weight:600;color:#fff;background:var(--acc);
+  border:none;border-radius:100px;padding:5px 11px;letter-spacing:.2px;white-space:nowrap;
+  cursor:pointer;flex-shrink:0;font-family:var(--ui);
+  transition:opacity .12s,transform .1s cubic-bezier(.22,1,.36,1)}
+.search-global-btn:active{opacity:.85;transform:scale(.94)}
 .search-clear{width:20px;height:20px;display:flex;align-items:center;justify-content:center;
   color:var(--t3);cursor:pointer;flex-shrink:0;border-radius:50%}
 .search-clear:active{background:var(--brd)}
@@ -425,6 +426,9 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
   border-radius:100px;padding:1px 7px}
 .so-hit{color:var(--acc);font-weight:600}
 .search-count{font-size:11px;color:var(--t2);padding:4px 2px 2px}
+.card-assignee{font-size:11px;font-weight:600;color:var(--acc);
+  display:inline-flex;align-items:center;gap:4px}
+.card-assignee.none{color:var(--warn)}
 
 
 </style>
@@ -475,9 +479,9 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
   <div class="search-wrap" id="search-wrap">
     <div class="search-box">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" class="search-input" id="search-input" placeholder="Поиск: название или исполнитель…"
+      <input type="text" class="search-input" id="search-input" placeholder="Поиск в этом разделе…"
         autocomplete="off" autocorrect="off" spellcheck="false">
-      <span class="search-scope" id="search-scope" title="Область поиска">эта вкладка</span>
+      <button class="search-global-btn" id="search-scope" title="Искать во всех разделах">🔍 по всем</button>
       <span class="search-clear" id="search-clear">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </span>
@@ -586,7 +590,7 @@ html[data-theme=dark] .bottom-nav{background:rgba(26,26,29,.95)}
 <!-- ══ GLOBAL SEARCH OVERLAY ══ -->
 <div id="search-overlay">
   <div class="so-head">
-    <div class="so-back" id="so-back">‹ Закрыть</div>
+    <div class="so-back" id="so-back">‹ Назад · поиск по всем разделам</div>
     <div class="search-box">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input type="text" class="search-input" id="so-input" placeholder="Поиск по всем разделам…"
@@ -1100,12 +1104,13 @@ function renderTab(key) {
       html += '<div class="grp-gap"></div>';
     });
   } else {
+    const searching = searchOpen && searchQuery && key === currentTab;
     if (unassigned.length) {
       html += `<div class="grp-unassigned">⚠️ Не назначен · ${unassigned.length}</div>`;
-      unassigned.forEach(t => { html += cardHTML(t, tab.label); });
+      unassigned.forEach(t => { html += cardHTML(t, tab.label, null, searching); });
       html += '<div class="grp-gap"></div>';
     }
-    assigned.forEach(t => { html += cardHTML(t, tab.label); });
+    assigned.forEach(t => { html += cardHTML(t, tab.label, null, searching); });
   }
 
   html += '</div>';
@@ -1194,7 +1199,7 @@ function renderSvodka() {
 /* ════════════════════════════════════════════
    CARD HTML
 ════════════════════════════════════════════ */
-function cardHTML(task, tabLabel, stage) {
+function cardHTML(task, tabLabel, stage, showAssignee) {
   const name     = esc(task.name || '—');
   const st       = task.status || {};
   const color    = st.color || '#8A8985';
@@ -1205,6 +1210,11 @@ function cardHTML(task, tabLabel, stage) {
   const over     = task.endDateTime ? isOverdue(task.endDateTime) : false;
   const clr2     = hexAlpha(color, .1);
   const stageChip = stage ? `<span class="stage-chip">${esc(stage)}</span>` : '';
+  const assigneeChip = showAssignee
+    ? (noAssign
+        ? `<div class="card-assignee none">⚠️ Не назначен</div>`
+        : `<div class="card-assignee">👤 ${esc(aName)}</div>`)
+    : '';
 
   return `<div class="card">
     <div class="pbar" style="background:${color}"></div>
@@ -1214,7 +1224,7 @@ function cardHTML(task, tabLabel, stage) {
       <div class="status-pill" style="background:${clr2};color:${color}">
         <span class="status-dot" style="background:${color}"></span>${stName}
       </div>
-
+      ${assigneeChip}
       ${dl
         ? `<div class="deadline${over?' over':''}"> ${over?'⏰':'📅'} ${dl}</div>`
         : `<div class="deadline" style="color:var(--t3)">Без срока</div>`
@@ -1939,7 +1949,7 @@ function onGlobalInput(v) {
     total += hits.length;
     const emoji = TAB_EMOJI[tab.key] || '📋';
     html += `<div class="so-group-hd">${emoji} ${esc(tab.label)} <span class="g-cnt">${hits.length}</span></div>`;
-    hits.forEach(t => { html += cardHTML(t, tab.label); });
+    hits.forEach(t => { html += cardHTML(t, tab.label, null, true); });
   });
 
   cnt.textContent = total ? `Найдено: ${total}` : '';
