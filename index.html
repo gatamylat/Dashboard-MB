@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#FAF9F5">
 <title>Massivburg · Dashboard</title>
-<meta name="build-version" content="202607271354">
+<meta name="build-version" content="202607271401">
 
 <!-- ══ PWA · открытие как отдельное приложение (без интерфейса Safari) ══ -->
 <link rel="manifest" href="./manifest.json">
@@ -1142,16 +1142,26 @@ function renderSvodka() {
 
   // Собираем задачи Эскиз + РД с пометкой стадии
   const STAGE_ORDER = { 'Эскиз': 0, 'РД': 1 };
-  const all = [];
+  let all = [];
   if (Array.isArray(ek))  ek.forEach(t  => all.push({ task: t, stage: 'Эскиз' }));
   if (Array.isArray(rdd)) rdd.forEach(t => all.push({ task: t, stage: 'РД' }));
+
+  // Поиск в пределах Сводки
+  const searchingSvodka = searchOpen && searchQuery && currentTab === 'svodka';
+  if (searchingSvodka) {
+    all = all.filter(x => taskMatches(x.task, searchQuery));
+  }
 
   cnt.textContent = all.length;
 
   if (!all.length) {
-    el.innerHTML = `<div class="state"><span class="state-icon">✓</span>
-      <div class="state-title">Задач нет</div>
-      <div class="state-text">В Эскизах и РД активных задач нет</div></div>`;
+    el.innerHTML = searchingSvodka
+      ? `<div class="state"><span class="state-icon">🔍</span>
+         <div class="state-title">Ничего не найдено</div>
+         <div class="state-text">Попробуйте другой запрос или «по всем»</div></div>`
+      : `<div class="state"><span class="state-icon">✓</span>
+         <div class="state-title">Задач нет</div>
+         <div class="state-text">В Эскизах и РД активных задач нет</div></div>`;
     return;
   }
 
@@ -1808,7 +1818,10 @@ function switchTab(key) {
   document.getElementById(`screen-${key}`).classList.add('on');
   document.querySelector(`.tab[data-key="${key}"]`)?.classList.add('on');
   // если открыт поиск с запросом — применяем его к новой вкладке
-  if (searchOpen && searchQuery) renderTab(key);
+  if (searchOpen && searchQuery) {
+    if (key === 'svodka') renderSvodka();
+    else renderTab(key);
+  }
 }
 
 /* ════════════════════════════════════════════
@@ -1894,20 +1907,23 @@ function toggleSearch() {
   } else {
     searchQuery = '';
     document.getElementById('search-input').value = '';
-    renderTab(currentTab);   // сброс фильтра
+    if (currentTab === 'svodka') renderSvodka();
+    else renderTab(currentTab);
   }
 }
 
 function onSearchInput(v) {
   searchQuery = normSearch(v);
-  renderTab(currentTab);
+  if (currentTab === 'svodka') renderSvodka();
+  else renderTab(currentTab);
 }
 
 function clearTabSearch() {
   searchQuery = '';
   document.getElementById('search-input').value = '';
   document.getElementById('search-input').focus();
-  renderTab(currentTab);
+  if (currentTab === 'svodka') renderSvodka();
+  else renderTab(currentTab);
 }
 
 // ── Сквозной поиск по всем вкладкам (оверлей) ──
